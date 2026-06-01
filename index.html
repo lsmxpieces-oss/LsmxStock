@@ -798,45 +798,46 @@ async function soumettre(){
     }
 
     // Upload photos - méthode base64 compatible avec le proxy
-    if(photos.length>0){
-      toast('📸 Upload des photos...','info');
-      const imageIds=[];
-      for(const photo of photos){
-        try{
-          // Convertir base64 en binaire
-          const base64Data = photo.data.split(',')[1];
-          const mimeType = photo.data.split(';')[0].split(':')[1];
-          const byteStr = atob(base64Data);
-          const arr = new Uint8Array(byteStr.length);
-          for(let i=0;i<byteStr.length;i++) arr[i]=byteStr.charCodeAt(i);
-          const blob = new Blob([arr],{type:mimeType});
+   if(photos.length>0){
+  toast('📸 Upload des photos...','info');
+  const imageIds=[];
+  for(const photo of photos){
+    try{
+      const base64Data = photo.data.split(',')[1];
+      const mimeType = photo.data.split(';')[0].split(':')[1];
+      const byteStr = atob(base64Data);
+      const arr = new Uint8Array(byteStr.length);
+      for(let i=0;i<byteStr.length;i++) arr[i]=byteStr.charCodeAt(i);
+      const blob = new Blob([arr],{type:mimeType});
 
-          const form=new FormData();
-          form.append('file',blob,'photo_lsmx.jpg');
-          form.append('title',d.produit);
-
-          // Upload via proxy avec Content-Type image/jpeg
-          const ir=await fetch(proxyUrl(`${WOO_URL}/wp-json/wp/v2/media`),{
-            method:'POST',
-            headers:{
-              Authorization:wooAuth(),
-              'Content-Disposition':'attachment; filename="photo_lsmx.jpg"',
-              'Content-Type':'image/jpeg'
-            },
-            body:blob
-          });
-          const ij=await ir.json();
-          if(ij.id)imageIds.push({id:ij.id});
-        }catch(e){ console.warn('Photo failed',e); }
-      }
-      if(imageIds.length){
-        await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${wooId}`),{
-          method:'PUT',
-          headers:{'Content-Type':'application/json',Authorization:wooAuth()},
-          body:JSON.stringify({images:imageIds})
-        });
-      }
+      const ir=await fetch(proxyUrl(`${WOO_URL}/wp-json/wp/v2/media`),{
+        method:'POST',
+        headers:{
+          Authorization:wooAuth(),
+          'Content-Disposition':'attachment; filename="photo_lsmx.jpg"',
+          'Content-Type':'image/jpeg'
+        },
+        body:blob
+      });
+      const irText = await ir.text();
+      console.log('Photo response status:', ir.status);
+      console.log('Photo response:', irText.substring(0,200));
+      const ij = JSON.parse(irText);
+      if(ij.id) imageIds.push({id:ij.id});
+      else toast('Photo erreur: '+irText.substring(0,50),'err');
+    }catch(e){
+      console.warn('Photo failed',e);
+      toast('Photo erreur: '+e.message,'err');
     }
+  }
+  if(imageIds.length){
+    await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${wooId}`),{
+      method:'PUT',
+      headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+      body:JSON.stringify({images:imageIds})
+    });
+  }
+}
 
     toast(`✅ "${d.produit}" publié ! (Réf: ${d.ref})`,'ok');
     resetForm();
