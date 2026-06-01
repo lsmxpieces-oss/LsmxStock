@@ -12,7 +12,7 @@
 <style>
 :root{
   --bg:#0d0d0d;--bg2:#161616;--bg3:#1e1e1e;--card:#141414;
-  --border:#2a2a2a;--red:#e8000d;--red2:#ff1a24;--red3:#c0000a;
+  --border:#2a2a2a;--red:#e8000d;--red3:#c0000a;
   --white:#ffffff;--grey:#a0a0a0;--muted:#555;
   --green:#00c853;--yellow:#ffd600;--blue:#2979ff;
   --radius:14px;
@@ -22,39 +22,37 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
+/* LOGIN */
 #login{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:linear-gradient(180deg,#1a0002 0%,var(--bg) 50%)}
-.l-logo{font-family:'Bebas Neue',sans-serif;font-size:88px;letter-spacing:8px;color:var(--white);line-height:1;text-shadow:0 0 40px rgba(232,0,13,0.4)}
+.l-logo{font-family:'Bebas Neue',sans-serif;font-size:88px;letter-spacing:8px;color:var(--white);line-height:1}
 .l-logo span{color:var(--red)}
 .l-sub{font-size:11px;color:var(--muted);letter-spacing:5px;text-transform:uppercase;margin-bottom:48px;margin-top:6px}
 .l-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px 24px;width:100%;max-width:340px}
 .l-who{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
-.user-row{display:flex;gap:8px;margin-bottom:24px}
+.user-row{display:flex;gap:8px;margin-bottom:20px}
 .u-btn{flex:1;padding:13px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;text-align:center}
 .u-btn.on{border-color:var(--red);background:rgba(232,0,13,.1);color:var(--white)}
-.pin-row{display:flex;gap:12px;justify-content:center;margin-bottom:24px}
-.pin-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--border);transition:.2s}
-.pin-dot.on{background:var(--red);border-color:var(--red);box-shadow:0 0 10px rgba(232,0,13,.5)}
-.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.nb{padding:17px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--white);font-family:'DM Sans',sans-serif;font-size:22px;font-weight:500;cursor:pointer;transition:.15s;text-align:center}
-.nb:active{transform:scale(.92);background:var(--bg3)}
-.nb.del{font-size:14px;color:var(--muted)}
-.nb.ok{background:var(--red);border-color:var(--red);color:var(--white);font-weight:800;font-size:14px;letter-spacing:1px}
-.nb.ok:active{background:var(--red3)}
-.err-msg{color:var(--red);font-size:13px;text-align:center;margin-top:14px;min-height:18px;font-weight:500}
+.code-input-wrap{margin-bottom:16px}
+.code-input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;transition:border-color .2s;letter-spacing:2px;-webkit-appearance:none}
+.code-input:focus{border-color:var(--red)}
+.btn-login{width:100%;padding:15px;border-radius:12px;border:none;background:var(--red);color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-login:active{background:var(--red3)}
+.err-msg{color:var(--red);font-size:13px;text-align:center;margin-top:12px;min-height:18px;font-weight:500}
 
+/* APP */
 #app{display:none;flex-direction:column;min-height:100dvh;padding-bottom:calc(66px + var(--sab))}
-
 .hdr{padding:calc(var(--sat) + 14px) 18px 12px;position:sticky;top:0;z-index:50;background:rgba(13,13,13,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
 .hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;color:var(--white)}
 .hdr-logo span{color:var(--red)}
 .hdr-user{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--grey);cursor:pointer}
-.hdr-title{font-size:20px;font-weight:700;color:var(--white)}
+.hdr-title{font-size:20px;font-weight:700}
 .hdr-sync{display:flex;align-items:center;gap:6px;margin-top:4px}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .sync-txt{font-size:11px;color:var(--muted)}
 
+/* NAV */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,13,.97);border-top:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:flex-end;padding:6px 0 calc(6px + var(--sab));z-index:100}
 .nv{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;transition:color .2s}
 .nv.on{color:var(--red)}
@@ -64,38 +62,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .nv-add:active{transform:scale(.9);background:var(--red3)}
 .nv-add svg{width:26px;height:26px;stroke:#fff;stroke-width:2.5}
 
+/* PAGES */
 .pg{display:none;padding:14px 16px}
 .pg.on{display:block}
 
+/* DASHBOARD */
 .kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .kcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;overflow:hidden}
 .kcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.kcard.c-red::before{background:var(--red)}
-.kcard.c-green::before{background:var(--green)}
-.kcard.c-yellow::before{background:var(--yellow)}
-.kcard.c-blue::before{background:var(--blue)}
+.kcard.c-red::before{background:var(--red)}.kcard.c-green::before{background:var(--green)}
+.kcard.c-yellow::before{background:var(--yellow)}.kcard.c-blue::before{background:var(--blue)}
 .kcard.wide{grid-column:1/-1}
 .klbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:600}
-.kval{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;color:var(--white)}
+.kval{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1}
 .kval.c-red{color:var(--red)}.kval.c-green{color:var(--green)}.kval.c-yellow{color:var(--yellow)}.kval.c-blue{color:var(--blue)}
 .ksub{font-size:11px;color:var(--muted);margin-top:3px}
 .sec{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
 
-.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;border-left:3px solid transparent}
-.pc.sale{border-left-color:var(--green)}.pc.sold{border-left-color:var(--muted)}.pc.resv{border-left-color:var(--yellow)}
-.pc:active{background:var(--bg2)}
-.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
-.pc-ref{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:2px}
-.pc-name{font-size:14px;font-weight:600;line-height:1.3;color:var(--white);flex:1}
-.badge{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;white-space:nowrap}
-.badge.sale{background:rgba(0,200,83,.15);color:var(--green);border:1px solid rgba(0,200,83,.3)}
-.badge.sold{background:rgba(80,80,80,.2);color:var(--muted);border:1px solid var(--border)}
-.badge.resv{background:rgba(255,214,0,.12);color:var(--yellow);border:1px solid rgba(255,214,0,.3)}
-.pc-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-.tag{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:11px;color:var(--muted)}
-.pc-prix{font-size:16px;font-weight:800;color:var(--red);margin-top:8px}
+/* STAT ROW */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.stat-mini{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.stat-mini .sv{font-family:'Bebas Neue',sans-serif;font-size:22px}
+.stat-mini .sl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
 
+/* STOCK */
 .sbar{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;gap:10px;margin-bottom:12px}
 .sbar input{flex:1;background:none;border:none;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none}
 .sbar input::placeholder{color:var(--muted)}
@@ -105,47 +96,66 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .ftag{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s}
 .ftag.on{background:rgba(232,0,13,.1);border-color:var(--red);color:var(--red)}
 
+/* PIECE CARD */
+.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px;border-left:3px solid transparent}
+.pc.sale{border-left-color:var(--green)}.pc.sold{border-left-color:var(--muted)}.pc.resv{border-left-color:var(--yellow)}
+.pc:active{background:var(--bg2)}
+.pc-ref{font-size:10px;color:var(--red);font-weight:800;letter-spacing:1px;margin-bottom:4px;font-family:'Bebas Neue',sans-serif;font-size:14px}
+.pc-name{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:8px}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.badge{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge.sale{background:rgba(0,200,83,.15);color:var(--green);border:1px solid rgba(0,200,83,.3)}
+.badge.sold{background:rgba(80,80,80,.2);color:var(--muted);border:1px solid var(--border)}
+.badge.resv{background:rgba(255,214,0,.12);color:var(--yellow);border:1px solid rgba(255,214,0,.3)}
+.pc-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.tag{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:11px;color:var(--muted)}
+.pc-prix{font-size:16px;font-weight:800;color:var(--red)}
+
+/* FORM */
 .flbl{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:1px}
 .finp{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
 .finp:focus{border-color:var(--red)}
-.finp option{background:#1a1a1a;color:var(--white)}
+.finp option{background:#1a1a1a}
 .frow{margin-bottom:12px}
 .frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ref-preview{background:rgba(232,0,13,.08);border:1px solid rgba(232,0,13,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--grey)}
+.ref-preview strong{color:var(--red);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
 
-.photo-zone{background:var(--bg2);border:2px dashed var(--border);border-radius:14px;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:.2s;margin-bottom:10px}
+/* PHOTOS */
+.photo-zone{background:var(--bg2);border:2px dashed var(--border);border-radius:14px;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin-bottom:10px}
 .photo-zone:active{border-color:var(--red)}
-.photo-zone svg{width:36px;height:36px;stroke:var(--muted)}
+.photo-zone svg{width:32px;height:32px;stroke:var(--muted)}
 .photo-zone p{font-size:13px;color:var(--muted)}
 .photo-zone span{font-size:11px;color:var(--muted);opacity:.6}
 .photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.photo-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;background:var(--bg2);border:1px solid var(--border)}
+.photo-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;background:var(--bg2)}
 .photo-thumb img{width:100%;height:100%;object-fit:cover}
-.photo-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.8);border:none;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:14px;line-height:1}
+.photo-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.8);border:none;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:14px}
 #photo-input{display:none}
 
+/* BTNS */
 .btn{width:100%;padding:16px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;transition:.2s}
 .btn-primary{background:var(--red);color:var(--white);box-shadow:0 4px 20px rgba(232,0,13,.3)}
 .btn-primary:active{background:var(--red3);transform:scale(.98)}
 .btn-primary:disabled{opacity:.5;pointer-events:none}
 .btn-sec{background:var(--bg2);border:1px solid var(--border);color:var(--grey);margin-top:8px}
 
+/* LOADER / TOAST / EMPTY */
 .loader{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px 20px;color:var(--muted);font-size:14px}
 .spin{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-
 .toast{position:fixed;top:calc(var(--sat) + 74px);left:50%;transform:translateX(-50%) translateY(-10px);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:.25s;white-space:nowrap;pointer-events:none;max-width:90vw}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.ok{border-color:var(--green);color:var(--green)}
 .toast.err{border-color:var(--red);color:var(--red)}
 .toast.info{border-color:var(--blue);color:var(--blue)}
-
 .empty{text-align:center;padding:48px 20px;color:var(--muted)}
 .empty svg{width:44px;height:44px;stroke:var(--border);margin-bottom:12px}
-.empty p{font-size:14px}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div id="login">
   <div class="l-logo">LS<span>MX</span></div>
   <div class="l-sub">Stock Pièces Moto</div>
@@ -155,28 +165,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
       <button class="u-btn on" onclick="selectUser('Esteban')" id="btn-Esteban">ESTEBAN</button>
       <button class="u-btn" onclick="selectUser('Maxence')" id="btn-Maxence">MAXENCE</button>
     </div>
-    <div class="pin-row" id="pin-dots">
-      <div class="pin-dot"></div><div class="pin-dot"></div>
-      <div class="pin-dot"></div><div class="pin-dot"></div>
+    <div class="code-input-wrap">
+      <input class="code-input" type="password" id="code-input" placeholder="Code d'accès" autocomplete="off">
     </div>
-    <div class="numpad">
-      <button class="nb" onclick="pinKey('1')">1</button>
-      <button class="nb" onclick="pinKey('2')">2</button>
-      <button class="nb" onclick="pinKey('3')">3</button>
-      <button class="nb" onclick="pinKey('4')">4</button>
-      <button class="nb" onclick="pinKey('5')">5</button>
-      <button class="nb" onclick="pinKey('6')">6</button>
-      <button class="nb" onclick="pinKey('7')">7</button>
-      <button class="nb" onclick="pinKey('8')">8</button>
-      <button class="nb" onclick="pinKey('9')">9</button>
-      <button class="nb del" onclick="pinDel()">⌫</button>
-      <button class="nb" onclick="pinKey('0')">0</button>
-      <button class="nb ok" onclick="pinOk()">OK</button>
-    </div>
+    <button class="btn-login" onclick="doLogin()">Se connecter</button>
     <div class="err-msg" id="err-msg"></div>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
   <div class="hdr">
     <div class="hdr-top">
@@ -209,15 +206,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
         <div class="ksub">en attente</div>
       </div>
       <div class="kcard c-blue">
-        <div class="klbl">Total</div>
+        <div class="klbl">Total stock</div>
         <div class="kval c-blue" id="k-total">—</div>
-        <div class="ksub">pièces au total</div>
+        <div class="ksub">pièces référencées</div>
       </div>
       <div class="kcard wide c-red">
         <div class="klbl">Valeur stock (prix vente)</div>
         <div class="kval c-red" id="k-valeur">— €</div>
         <div class="ksub">estimation du stock disponible</div>
       </div>
+      <div class="kcard wide c-green">
+        <div class="klbl">Marge totale estimée</div>
+        <div class="kval c-green" id="k-marge">— €</div>
+        <div class="ksub">bénéfice potentiel sur le stock en vente</div>
+      </div>
+    </div>
+    <div class="sec">Répartition par statut</div>
+    <div class="stat-row">
+      <div class="stat-mini"><div class="sv c-green" id="s-vente" style="color:var(--green)">—</div><div class="sl">En vente</div></div>
+      <div class="stat-mini"><div class="sv" id="s-vendu" style="color:var(--red)">—</div><div class="sl">Vendues</div></div>
+      <div class="stat-mini"><div class="sv" id="s-resv" style="color:var(--yellow)">—</div><div class="sl">Réservées</div></div>
     </div>
     <div class="sec">Dernières pièces ajoutées</div>
     <div id="dash-recents"><div class="loader"><div class="spin"></div> Chargement...</div></div>
@@ -227,7 +235,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
   <div class="pg" id="pg-stock">
     <div class="sbar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" id="search-inp" placeholder="Rechercher une pièce, marque..." oninput="filterStock()">
+      <input type="search" id="search-inp" placeholder="Réf, nom, marque, modèle..." oninput="filterStock()">
     </div>
     <div class="frow-tags">
       <div class="ftag on" onclick="setFilter('',this)">Tout</div>
@@ -241,6 +249,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
   <!-- AJOUTER -->
   <div class="pg" id="pg-add">
     <div class="sec" style="margin-top:0">Nouvelle pièce</div>
+    <div class="ref-preview" id="ref-preview">Prochaine référence : <strong id="next-ref">Chargement...</strong></div>
+
     <div class="frow">
       <label class="flbl">📸 Photos</label>
       <div class="photo-zone" id="photo-zone" onclick="document.getElementById('photo-input').click()">
@@ -251,26 +261,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
       <input type="file" id="photo-input" accept="image/*" capture="environment" multiple onchange="handlePhotos(this)">
       <div class="photo-grid" id="photo-grid"></div>
     </div>
+
     <div class="frow">
       <label class="flbl">Produit / Pièce *</label>
       <input class="finp" type="text" id="f-produit" placeholder="Ex: Échappement KTM 125 SX 2020">
     </div>
+
     <div class="frow2">
       <div>
         <label class="flbl">Catégorie *</label>
         <select class="finp" id="f-categorie" onchange="updateSousCat()">
           <option value="">— Choisir —</option>
-          <option>Moteur</option><option>Transmission</option><option>Partie_cycle</option>
-          <option>Suspensions</option><option>Freinage</option><option>Roues</option>
-          <option>Électricité</option><option>Pilotage</option><option>Carénage</option>
-          <option>Echappement</option>
+          <option>Admission / Carburation</option>
+          <option>Carénages</option>
+          <option>Commandes / Poste de pilotage</option>
+          <option>Échappement</option>
+          <option>Électricité</option>
+          <option>Freinage</option>
+          <option>Partie cycle</option>
+          <option>Pièces moteur</option>
+          <option>Refroidissement</option>
+          <option>Roues</option>
+          <option>Suspension</option>
+          <option>Transmission</option>
+          <option>Visserie / Divers</option>
         </select>
       </div>
       <div>
-        <label class="flbl">Sous-catégorie</label>
+        <label class="flbl">Sous-catégorie *</label>
         <select class="finp" id="f-souscat"><option value="">— Catégorie d'abord —</option></select>
       </div>
     </div>
+
     <div class="frow2">
       <div>
         <label class="flbl">Marque *</label>
@@ -287,6 +309,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
         <input class="finp" type="text" id="f-modele" placeholder="Ex: 125 SX">
       </div>
     </div>
+
     <div class="frow2">
       <div><label class="flbl">Année début</label><input class="finp" type="number" id="f-annee-deb" placeholder="2020" min="1970" max="2030"></div>
       <div><label class="flbl">Année fin</label><input class="finp" type="number" id="f-annee-fin" placeholder="2023" min="1970" max="2030"></div>
@@ -394,57 +417,104 @@ const WOO_SECRET = 'cs_5928db193c5123472bbf7a3e2f1aebf37a3c1c9b';
 const SHEET_ID   = '1isKWzm3fjowCL6kwJlgS3PTfug6DJjvPpC-teEyneUg';
 const SHEET_NAME = encodeURIComponent('📦 Stock');
 
-const USERS = { 'Esteban':'1234', 'Maxence':'5678' };
-
-const SOUS_CATS = {
-  'Moteur':['Haut moteur','Cylindre / piston','Bas moteur','Lubrification','Refroidissement'],
-  'Transmission':['Embrayage','Boîte de vitesses','Transmission finale'],
-  'Partie_cycle':["Admission d'air",'Cadre','Bras oscillant','Direction'],
-  'Suspensions':['Suspension avant','Suspension arrière'],
-  'Freinage':['Frein avant','Frein arrière','Hydraulique'],
-  'Roues':['Roue avant','Roue arrière','Pneumatiques'],
-  'Électricité':['Allumage','Faisceau'],
-  'Pilotage':['Guidon','Commandes','Repose pieds'],
-  'Carénage':['Plastiques','Sellerie','Réservoir'],
-  'Echappement':['Cartouche','Corps','Cartouche+Corps','Laine de roche','Ressort'],
+// Codes d'accès
+const USERS = {
+  'Esteban': 'HjziugDD2667%0@4525s',
+  'Maxence': 'HjziugDD2667%0@4525s',
 };
 
-const CAT_IDS = {
-  'Moteur':278,'Transmission':39,'Partie_cycle':271,'Suspensions':38,
-  'Freinage':273,'Roues':43,'Électricité':274,'Pilotage':44,'Carénage':280,'Echappement':277
+// Catégories WooCommerce avec IDs réels
+const CATS = {
+  'Admission / Carburation': { id:444, subs: {
+    'Boîte à air':448,'Boîtier injection':446,'Carburateur':445,
+    'Filtre à air':447,'Pipe d\'admission':449,'Pompe à essence':450,'Réservoir':451
+  }},
+  'Carénages': { id:503, subs: {
+    'Garde boue arrière':506,'Garde-boue avant':505,'Kit déco':511,'Kit plastique':504,
+    'Ouïes de radiateur':508,'Plaque avant':507,'Plaques latérales':509,
+    'Protège mains / radiateur / cadre / sabot moteur':510,'Selle et housse de selle':512
+  }},
+  'Commandes / Poste de pilotage': { id:494, subs: {
+    'Câbles (embrayage, gaz)':499,'Cocottes':498,'Guidon / mousse de guidon':495,
+    'Leviers (embrayage / frein)':496,'Pédale de frein':500,'Poignées':497,
+    'Repose-pieds':501,'Sélecteur':502
+  }},
+  'Échappement': { id:452, subs: {
+    'Bride / raccord':456,'Collecteur / échappement':455,'Ligne complète':454,
+    'Ressorts échappement':457,'Silencieux':453
+  }},
+  'Électricité': { id:475, subs: {
+    'Batterie':477,'Capteurs':480,'CDI / ECU':478,'Démarreur':479,'Faisceau électrique':476
+  }},
+  'Freinage': { id:469, subs: {
+    'Disques':471,'Durites de frein':474,'Étriers':470,'Maître-cylindre':472,'Plaquettes':473
+  }},
+  'Partie cycle': { id:458, subs: {
+    'Biellettes':462,'Boucle arrière':461,'Bras oscillant':460,'Cadre':459,'Té de fourche / pontets':463
+  }},
+  'Pièces moteur': { id:430, subs: {
+    'Allumage (stator, rotor)':441,'Arbre à cames':435,'Bielles':437,'Boîte de vitesses':440,
+    'Carter moteur':438,'Culasse':433,'Cylindre':431,'Embrayage':439,'Joints moteur':443,
+    'Piston':432,'Pompe à eau':442,'Soupapes':434,'Vilebrequin':436
+  }},
+  'Refroidissement': { id:513, subs: {
+    'Durites':515,'Radiateur':514,'Vase d\'expansion':516,'Ventilateur':517
+  }},
+  'Roues': { id:487, subs: {
+    'Jantes':490,'Moyeu':491,'Pneus':492,'Rayons':493,'Roue arrière':489,'Roue avant':488
+  }},
+  'Suspension': { id:464, subs: {
+    'Amortisseur arrière':466,'Fourche':465,
+    'Pièces de suspension (bagues, joints, kit départ...)':467,'Ressorts':468
+  }},
+  'Transmission': { id:481, subs: {
+    'Chaîne':482,'Couronne':483,'Guide chaîne':486,'Kit chaîne':485,'Pignon':484
+  }},
+  'Visserie / Divers': { id:518, subs: {
+    'Axes moteur / axes bras oscillant / axes roues':520,'Entretoises':521,'Kits visseries':519
+  }},
 };
 
 const MARQUE_IDS = {
   'KTM':72,'YAMAHA':71,'HONDA':67,'KAWASAKI':69,'SUZUKI':70,'HUSQVARNA':68,'GASGAS':275
 };
 
-let currentUser='Esteban', pinBuffer='', sheetData=[], filterStatut='', photos=[], syncInterval=null;
+let currentUser='Esteban', sheetData=[], filterStatut='', photos=[], syncInterval=null, nextRef='';
 
-// LOGIN
+// ── LOGIN ────────────────────────────────────────────────────
 function selectUser(u){
-  currentUser=u; pinBuffer=''; updatePinDots();
+  currentUser=u;
   document.getElementById('err-msg').textContent='';
+  document.getElementById('code-input').value='';
   document.querySelectorAll('.u-btn').forEach(b=>b.classList.remove('on'));
   document.getElementById('btn-'+u).classList.add('on');
 }
-function pinKey(k){ if(pinBuffer.length>=4)return; pinBuffer+=k; updatePinDots(); if(pinBuffer.length===4)setTimeout(pinOk,200); }
-function pinDel(){ pinBuffer=pinBuffer.slice(0,-1); updatePinDots(); }
-function pinOk(){
-  if(USERS[currentUser]===pinBuffer){
+
+function doLogin(){
+  const code = document.getElementById('code-input').value;
+  if(USERS[currentUser] === code){
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='flex';
     document.getElementById('hdr-user').textContent='👤 '+currentUser;
     startSync();
+    chargerProchainRef();
   } else {
     document.getElementById('err-msg').textContent='❌ Code incorrect';
-    pinBuffer=''; updatePinDots();
-    setTimeout(()=>document.getElementById('err-msg').textContent='',2500);
+    setTimeout(()=>document.getElementById('err-msg').textContent='',3000);
   }
 }
-function updatePinDots(){ document.querySelectorAll('.pin-dot').forEach((d,i)=>d.classList.toggle('on',i<pinBuffer.length)); }
-function logout(){ clearInterval(syncInterval); pinBuffer=''; updatePinDots(); document.getElementById('login').style.display='flex'; document.getElementById('app').style.display='none'; }
 
-// NAVIGATION
+// Connexion aussi avec Entrée
+document.getElementById('code-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function logout(){
+  clearInterval(syncInterval);
+  document.getElementById('code-input').value='';
+  document.getElementById('login').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
 function goPage(p){
   document.querySelectorAll('.pg').forEach(el=>el.classList.remove('on'));
   document.querySelectorAll('.nv').forEach(el=>el.classList.remove('on'));
@@ -454,23 +524,22 @@ function goPage(p){
   document.getElementById('hdr-title').textContent=t[p]||'';
 }
 
-// TOAST
+// ── TOAST ────────────────────────────────────────────────────
 function toast(msg,type='ok'){
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast '+type+' show';
   setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-// AUTH
 function wooAuth(){ return 'Basic '+btoa(WOO_KEY+':'+WOO_SECRET); }
 function proxyUrl(url){ return PROXY+encodeURIComponent(url); }
 
-// SYNC
+// ── SYNC ────────────────────────────────────────────────────
 function startSync(){ loadAll(); syncInterval=setInterval(loadAll,30000); }
 
 async function loadAll(){
   setSyncStatus('sync');
-  try { await loadSheet(); setSyncStatus('ok'); }
+  try{ await loadSheet(); setSyncStatus('ok'); }
   catch(e){ setSyncStatus('err'); }
 }
 
@@ -479,10 +548,10 @@ function setSyncStatus(s){
   const txt=document.getElementById('sync-txt');
   if(s==='sync'){ dot.style.background='var(--yellow)'; txt.textContent='Synchronisation...'; }
   else if(s==='ok'){ dot.style.background='var(--green)'; txt.textContent='Synchronisé · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
-  else { dot.style.background='var(--red)'; txt.textContent='Hors ligne'; }
+  else{ dot.style.background='var(--red)'; txt.textContent='Hors ligne'; }
 }
 
-// GOOGLE SHEETS
+// ── GOOGLE SHEETS ────────────────────────────────────────────
 async function loadSheet(){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
   const r=await fetch(url);
@@ -496,35 +565,58 @@ async function loadSheet(){
   }).filter(r=>r['Produit / Pièce']);
   renderStock();
   renderDash();
+  calculerProchainRef();
 }
 
-// STOCK
+// ── PROCHAIN REF ─────────────────────────────────────────────
+async function chargerProchainRef(){
+  await loadSheet();
+}
+
+function calculerProchainRef(){
+  // Trouver la dernière référence dans Google Sheets
+  const refs = sheetData
+    .map(r => String(r['Réf. LSMX']||''))
+    .filter(r => /^\d+$/.test(r))
+    .map(r => parseInt(r))
+    .filter(r => !isNaN(r));
+
+  const maxRef = refs.length > 0 ? Math.max(...refs) : 2600000;
+  nextRef = String(maxRef + 1);
+  document.getElementById('next-ref').textContent = nextRef;
+}
+
+// ── STOCK ────────────────────────────────────────────────────
 function renderStock(){
   const list=document.getElementById('stock-list');
   const search=(document.getElementById('search-inp').value||'').toLowerCase();
   let items=sheetData.filter(row=>{
+    const ref=String(row['Réf. LSMX']||'').toLowerCase();
     const nom=String(row['Produit / Pièce']||'').toLowerCase();
     const marque=String(row['Marque']||'').toLowerCase();
     const modele=String(row['Modèle']||'').toLowerCase();
-    const matchS=!search||nom.includes(search)||marque.includes(search)||modele.includes(search);
+    const matchS=!search||nom.includes(search)||marque.includes(search)||modele.includes(search)||ref.includes(search);
     const statut=String(row['Statut']||'');
     const matchF=!filterStatut||statut===filterStatut;
     return matchS&&matchF;
   });
+
   if(!items.length){ list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Aucune pièce trouvée</p></div>'; return; }
+
   list.innerHTML=items.map(row=>{
     const statut=String(row['Statut']||'En vente');
     const cls=statut==='En vente'?'sale':statut==='Vendue'?'sold':'resv';
-    const ref=String(row['Réf. LSMX']||'—');
+    const ref=String(row['Réf. LSMX']||'');
     const nom=String(row['Produit / Pièce']||'');
     const marque=String(row['Marque']||'');
     const modele=String(row['Modèle']||'');
     const etat=String(row['État général']||'');
-    const prix=row['Prix vente (€)']?Number(row['Prix vente (€)']).toFixed(0)+' €':'—';
     const cat=String(row['Catégorie']||'');
+    const prix=row['Prix vente (€)']?Number(row['Prix vente (€)']).toFixed(0)+' €':'—';
     return `<div class="pc ${cls}">
+      ${ref?`<div class="pc-ref">${ref}</div>`:''}
       <div class="pc-top">
-        <div style="flex:1"><div class="pc-ref">${ref}</div><div class="pc-name">${nom}</div></div>
+        <div class="pc-name" style="flex:1">${nom}</div>
         <div class="badge ${cls}">${statut}</div>
       </div>
       <div class="pc-meta">
@@ -541,39 +633,51 @@ function renderStock(){
 function filterStock(){ renderStock(); }
 function setFilter(s,el){ filterStatut=s; document.querySelectorAll('.ftag').forEach(t=>t.classList.remove('on')); el.classList.add('on'); renderStock(); }
 
-// DASHBOARD
+// ── DASHBOARD ────────────────────────────────────────────────
 function renderDash(){
   const vente=sheetData.filter(r=>r['Statut']==='En vente').length;
   const vendu=sheetData.filter(r=>r['Statut']==='Vendue').length;
   const resv=sheetData.filter(r=>r['Statut']==='Réservé').length;
   const total=sheetData.length;
   const valeur=sheetData.filter(r=>r['Statut']==='En vente').reduce((s,r)=>s+(Number(r['Prix vente (€)'])||0),0);
+  const achat=sheetData.filter(r=>r['Statut']==='En vente').reduce((s,r)=>s+(Number(r['Prix achat (€)'])||0),0);
+  const marge=valeur-achat;
+
   document.getElementById('k-vente').textContent=vente;
   document.getElementById('k-vendu').textContent=vendu;
   document.getElementById('k-resv').textContent=resv;
   document.getElementById('k-total').textContent=total;
   document.getElementById('k-valeur').textContent=valeur.toFixed(0)+' €';
+  document.getElementById('k-marge').textContent=marge>0?marge.toFixed(0)+' €':'—';
+  document.getElementById('s-vente').textContent=vente;
+  document.getElementById('s-vendu').textContent=vendu;
+  document.getElementById('s-resv').textContent=resv;
+
   const recents=[...sheetData].reverse().slice(0,5);
   document.getElementById('dash-recents').innerHTML=recents.map(row=>{
     const statut=String(row['Statut']||'En vente');
     const cls=statut==='En vente'?'sale':statut==='Vendue'?'sold':'resv';
+    const ref=String(row['Réf. LSMX']||'');
     const prix=row['Prix vente (€)']?Number(row['Prix vente (€)']).toFixed(0)+' €':'—';
     return `<div class="pc ${cls}">
+      ${ref?`<div class="pc-ref">${ref}</div>`:''}
       <div class="pc-top"><div class="pc-name" style="flex:1">${row['Produit / Pièce']||''}</div><div class="badge ${cls}">${statut}</div></div>
       <div class="pc-prix">${prix}</div>
     </div>`;
   }).join('');
 }
 
-// FORM
+// ── FORM ────────────────────────────────────────────────────
 function updateSousCat(){
   const cat=document.getElementById('f-categorie').value;
   const sel=document.getElementById('f-souscat');
   sel.innerHTML='<option value="">— Choisir —</option>';
-  if(cat&&SOUS_CATS[cat])SOUS_CATS[cat].forEach(sc=>sel.innerHTML+=`<option>${sc}</option>`);
+  if(cat && CATS[cat]){
+    Object.keys(CATS[cat].subs).forEach(sc=>sel.innerHTML+=`<option>${sc}</option>`);
+  }
 }
 
-// PHOTOS
+// ── PHOTOS ───────────────────────────────────────────────────
 function handlePhotos(input){
   Array.from(input.files).forEach(file=>{
     if(photos.length>=6)return;
@@ -588,76 +692,102 @@ function renderPhotos(){
 }
 function removePhoto(i){ photos.splice(i,1); renderPhotos(); }
 
-// SOUMETTRE
+// ── SOUMETTRE ────────────────────────────────────────────────
 async function soumettre(){
   const produit=document.getElementById('f-produit').value.trim();
   const vente=document.getElementById('f-vente').value;
   if(!produit){ toast('❌ Nom du produit obligatoire','err'); return; }
   if(!vente){ toast('❌ Prix de vente obligatoire','err'); return; }
+
   const btn=document.getElementById('btn-submit');
   btn.textContent='⏳ Publication...'; btn.disabled=true;
-  try {
+
+  try{
     const d={
-      produit,vente,
-      categorie:document.getElementById('f-categorie').value,
-      sousCat:document.getElementById('f-souscat').value,
-      marque:document.getElementById('f-marque').value,
-      modele:document.getElementById('f-modele').value,
-      anneeDeb:document.getElementById('f-annee-deb').value,
-      anneeFin:document.getElementById('f-annee-fin').value,
-      etat:document.getElementById('f-etat').value,
-      fonct:document.getElementById('f-fonct').value,
-      poids:document.getElementById('f-poids').value,
-      quantite:document.getElementById('f-quantite').value||1,
-      achat:document.getElementById('f-achat').value,
-      empl:document.getElementById('f-empl').value,
-      note:document.getElementById('f-note').value,
-      origine:document.getElementById('f-origine').value,
-      marqueP:document.getElementById('f-marque-p').value,
-      couleur:document.getElementById('f-couleur').value,
-      serie:document.getElementById('f-serie').value,
-      statut:document.getElementById('f-statut').value,
-      desc:document.getElementById('f-desc').value,
+      produit, vente,
+      categorie:  document.getElementById('f-categorie').value,
+      sousCat:    document.getElementById('f-souscat').value,
+      marque:     document.getElementById('f-marque').value,
+      modele:     document.getElementById('f-modele').value,
+      anneeDeb:   document.getElementById('f-annee-deb').value,
+      anneeFin:   document.getElementById('f-annee-fin').value,
+      etat:       document.getElementById('f-etat').value,
+      fonct:      document.getElementById('f-fonct').value,
+      poids:      document.getElementById('f-poids').value,
+      quantite:   document.getElementById('f-quantite').value||1,
+      achat:      document.getElementById('f-achat').value,
+      empl:       document.getElementById('f-empl').value,
+      note:       document.getElementById('f-note').value,
+      origine:    document.getElementById('f-origine').value,
+      marqueP:    document.getElementById('f-marque-p').value,
+      couleur:    document.getElementById('f-couleur').value,
+      serie:      document.getElementById('f-serie').value,
+      statut:     document.getElementById('f-statut').value,
+      desc:       document.getElementById('f-desc').value,
+      ref:        nextRef,
     };
+
     const annee=buildAnnee(d.anneeDeb,d.anneeFin);
     const poidsNum=parseFloat(d.poids)||0;
     const colis=poidsNum<=5?'Petit colis':poidsNum<=15?'Moyen colis':'Grand colis';
     const poidsStr=poidsNum>0?`${poidsNum} kg — ${colis}`:'';
     const dims=poidsNum<=5?{length:'30',width:'20',height:'15'}:poidsNum<=15?{length:'50',width:'40',height:'30'}:{length:'80',width:'60',height:'50'};
     const status=d.statut==='En vente'?'publish':d.statut==='Réservé'?'draft':'publish';
+
+    // Catégories avec vrais IDs
+    const catObj = CATS[d.categorie];
+    const cats = [{id:36}]; // Pièces d'occasion
+    if(catObj){ cats.push({id:catObj.id}); }
+    if(d.sousCat && catObj && catObj.subs[d.sousCat]){ cats.push({id:catObj.subs[d.sousCat]}); }
+
     const payload={
-      name:d.produit,type:'simple',status,catalog_visibility:'visible',
+      name: d.produit,
+      type:'simple', status, catalog_visibility:'visible',
+      sku: d.ref,
       description:`<h2>${d.produit}</h2><p>${d.desc||''}</p>`,
-      regular_price:String(d.vente),weight:String(poidsNum||''),dimensions:dims,
-      manage_stock:true,stock_quantity:parseInt(d.quantite)||1,
+      regular_price:String(d.vente),
+      weight:String(poidsNum||''), dimensions:dims,
+      manage_stock:true, stock_quantity:parseInt(d.quantite)||1,
       stock_status:d.statut==='Vendue'?'outofstock':'instock',
-      categories:buildCats(d),attributes:buildAttrs(d,annee),
+      categories:cats,
+      attributes:buildAttrs(d,annee),
       meta_data:[
-        {key:'etat_du_produit',value:d.etat},{key:'_etat_du_produit',value:'field_69cb7bf00403c'},
+        {key:'etat_du_produit',value:d.etat},
+        {key:'_etat_du_produit',value:'field_69cb7bf00403c'},
         {key:'caracteristiques_techniques',value:buildCaract(d,annee,poidsStr)},
         {key:'_caracteristiques_techniques',value:'field_67a3426217c58'},
         {key:'_seopress_titles_desc',value:buildMeta(d,annee)},
-        {key:'_seopress_titles_title',value:`${d.produit} — Pièce occasion ${d.marque} ${d.modele}`.trim()},
+        {key:'_seopress_titles_title',value:`${d.sousCat||d.produit} ${d.marque} ${d.modele} ${annee} — Occasion`.trim()},
         {key:'_seopress_analysis_target_kw',value:`${d.sousCat} ${d.marque} ${d.modele}`.trim()},
-        {key:'_seopress_redirections_type',value:'301'},{key:'_seopress_redirections_logged_status',value:'both'},
+        {key:'_seopress_redirections_type',value:'301'},
+        {key:'_seopress_redirections_logged_status',value:'both'},
         {key:'_seopress_robots_primary_cat',value:'none'},
       ]
     };
+
+    // Créer produit WooCommerce
     const r=await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products`),{
-      method:'POST',headers:{'Content-Type':'application/json',Authorization:wooAuth()},body:JSON.stringify(payload)
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+      body:JSON.stringify(payload)
     });
     const json=await r.json();
-    if(!json.id)throw new Error(json.message||'Erreur création');
+    if(!json.id)throw new Error(json.message||'Erreur création WooCommerce');
     const wooId=json.id;
+
+    // Marque
     const brandId=MARQUE_IDS[d.marque];
     if(brandId){
       await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${wooId}`),{
-        method:'PUT',headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+        method:'PUT',
+        headers:{'Content-Type':'application/json',Authorization:wooAuth()},
         body:JSON.stringify({brands:[{id:brandId}]})
       });
     }
+
+    // Upload photos
     if(photos.length>0){
-      toast('📸 Upload photos...','info');
+      toast('📸 Upload des photos...','info');
       const imageIds=[];
       for(const photo of photos){
         try{
@@ -666,52 +796,70 @@ async function soumettre(){
           form.append('file',blob,'photo_lsmx.jpg');
           form.append('title',d.produit);
           const ir=await fetch(proxyUrl(`${WOO_URL}/wp-json/wp/v2/media`),{
-            method:'POST',headers:{Authorization:wooAuth()},body:form
+            method:'POST',
+            headers:{Authorization:wooAuth()},
+            body:form
           });
           const ij=await ir.json();
           if(ij.id)imageIds.push({id:ij.id});
-        }catch(e){console.warn('Photo failed',e);}
+        }catch(e){ console.warn('Photo failed',e); }
       }
       if(imageIds.length){
         await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${wooId}`),{
-          method:'PUT',headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+          method:'PUT',
+          headers:{'Content-Type':'application/json',Authorization:wooAuth()},
           body:JSON.stringify({images:imageIds})
         });
       }
     }
-    toast(`✅ "${d.produit}" publié !`,'ok');
+
+    toast(`✅ "${d.produit}" publié ! (Réf: ${d.ref})`,'ok');
     resetForm();
-    setTimeout(loadAll,2000);
+    setTimeout(()=>{ loadAll(); calculerProchainRef(); },2000);
+
   }catch(e){ toast('❌ '+e.message,'err'); }
   finally{ btn.textContent='🚀 Publier sur le site'; btn.disabled=false; }
 }
 
+// ── HELPERS ──────────────────────────────────────────────────
 function buildAnnee(deb,fin){
   const d=String(deb||'').replace('.0','').trim();
   const f=String(fin||'').replace('.0','').trim();
   if(d&&f&&d===f)return d; if(d&&f)return`${d}-${f}`; return d||f||'';
 }
+
 function buildCaract(d,annee,poidsStr){
   const mod=[d.marque,d.modele,annee].filter(Boolean).join(' ');
   const orig=d.origine==='OUI'?"Pièce d'origine":'Pièce adaptable';
-  const lines=[`<strong>Type de pièce :</strong> ${d.sousCat||''}`,`<strong>Marque :</strong> ${d.marque||''}`,`<strong>Modèle compatible :</strong> ${mod}`];
+  const lines=[
+    `<strong>Type de pièce :</strong> ${d.sousCat||''}`,
+    `<strong>Marque :</strong> ${d.marque||''}`,
+    `<strong>Modèle compatible :</strong> ${mod}`,
+  ];
   if(annee)lines.push(`<strong>Année :</strong> ${annee}`);
   lines.push(`<strong>Catégorie principale :</strong> ${d.categorie||''}`);
   lines.push(`<strong>Origine :</strong> ${orig}`);
   if(d.marqueP&&d.marqueP!='/')lines.push(`<strong>Marque pièce :</strong> ${d.marqueP}`);
-  lines.push(`<strong>Condition :</strong> Occasion`,`<strong>État :</strong> ${d.etat}`,`<strong>Fonctionnement :</strong> ${d.fonct}`);
+  lines.push(`<strong>Condition :</strong> Occasion`);
+  lines.push(`<strong>État :</strong> ${d.etat}`);
+  lines.push(`<strong>Fonctionnement :</strong> ${d.fonct}`);
   if(d.couleur&&d.couleur!='Aucune')lines.push(`<strong>Couleur :</strong> ${d.couleur}`);
   if(poidsStr)lines.push(`<strong>Poids :</strong> ${poidsStr}`);
   if(d.serie&&d.serie!='/')lines.push(`<strong>N° série pièce :</strong> ${d.serie}`);
   return lines.join('\n');
 }
+
 function buildMeta(d,annee){
-  const type=(d.sousCat||'').toLowerCase();
-  const moto=/EXC|WR|WRF|KDX|TDR/i.test(d.modele)?'enduro':'cross';
-  const m=[d.marque,d.modele,annee].filter(Boolean).join(' ');
-  return`Achetez cette pièce de ${type} pour ${m} d'occasion en ${(d.etat||'').toLowerCase()}. Pièce moto ${moto} testée et vérifiée. Expédition rapide depuis la France.`.substring(0,160);
+  const souscat=(d.sousCat||'').toLowerCase();
+  const marque=d.marque||'';
+  const modele=d.modele||'';
+  const etat=(d.etat||'bon état').toLowerCase();
+  const moto=/EXC|WR|WRF|KDX|TDR/i.test(modele)?'enduro':'cross';
+  const anneeStr=annee?` ${annee}`:'';
+  // Meta cohérente — pas de contradiction état/condition
+  return `Pièce occasion : ${souscat} ${marque} ${modele}${anneeStr}. État ${etat}, fonctionnelle. Pièce moto ${moto} testée. Expédition rapide depuis la France.`.substring(0,160);
 }
-function buildCats(d){ const cats=[{id:36}]; const catId=CAT_IDS[d.categorie]; if(catId)cats.push({id:catId}); return cats; }
+
 function buildAttrs(d,annee){
   const attrs=[];
   if(d.marque)attrs.push({name:'Marque',slug:'pa_marque',visible:true,options:[d.marque]});
@@ -720,6 +868,7 @@ function buildAttrs(d,annee){
   if(d.etat)attrs.push({name:'État',slug:'pa_etat',visible:true,options:[d.etat]});
   return attrs;
 }
+
 function resetForm(){
   document.querySelectorAll('#pg-add .finp').forEach(el=>el.value='');
   document.getElementById('f-etat').value='Très bon';
@@ -728,10 +877,13 @@ function resetForm(){
   document.getElementById('f-couleur').value='Aucune';
   document.getElementById('f-statut').value='En vente';
   document.getElementById('f-quantite').value='1';
-  photos=[]; document.getElementById('photo-grid').innerHTML='';
+  document.getElementById('f-souscat').innerHTML='<option value="">— Catégorie d\'abord —</option>';
+  photos=[];
+  document.getElementById('photo-grid').innerHTML='';
   document.getElementById('photo-zone').style.display='flex';
   document.getElementById('photo-input').value='';
-  updateSousCat();
+  // Recalculer la prochaine ref
+  calculerProchainRef();
 }
 </script>
 </body>
