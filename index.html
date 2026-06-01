@@ -1,3 +1,6 @@
+
+raw
+Index · HTML
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -21,7 +24,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-
+ 
 /* LOGIN */
 #login{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:linear-gradient(180deg,#1a0002 0%,var(--bg) 50%)}
 .l-logo{font-family:'Bebas Neue',sans-serif;font-size:88px;letter-spacing:8px;color:var(--white);line-height:1}
@@ -38,7 +41,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .btn-login{width:100%;padding:15px;border-radius:12px;border:none;background:var(--red);color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:.2s}
 .btn-login:active{background:var(--red3)}
 .err-msg{color:var(--red);font-size:13px;text-align:center;margin-top:12px;min-height:18px;font-weight:500}
-
+ 
 /* APP */
 #app{display:none;flex-direction:column;min-height:100dvh;padding-bottom:calc(66px + var(--sab))}
 .hdr{padding:calc(var(--sat) + 14px) 18px 12px;position:sticky;top:0;z-index:50;background:rgba(13,13,13,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
@@ -51,7 +54,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .sync-txt{font-size:11px;color:var(--muted)}
-
+ 
 /* NAV */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,13,.97);border-top:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:flex-end;padding:6px 0 calc(6px + var(--sab));z-index:100}
 .nv{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;transition:color .2s}
@@ -61,11 +64,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .nv-add{width:52px;height:52px;border-radius:50%;background:var(--red);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(232,0,13,.5);transition:.2s;margin-top:-16px}
 .nv-add:active{transform:scale(.9);background:var(--red3)}
 .nv-add svg{width:26px;height:26px;stroke:#fff;stroke-width:2.5}
-
+ 
 /* PAGES */
 .pg{display:none;padding:14px 16px}
 .pg.on{display:block}
-
+ 
 /* DASHBOARD */
 .kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .kcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;overflow:hidden}
@@ -79,13 +82,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .ksub{font-size:11px;color:var(--muted);margin-top:3px}
 .sec{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
-
+ 
 /* STAT ROW */
 .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
 .stat-mini{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
 .stat-mini .sv{font-family:'Bebas Neue',sans-serif;font-size:22px}
 .stat-mini .sl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-
+ 
 /* STOCK */
 .sbar{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;gap:10px;margin-bottom:12px}
 .sbar input{flex:1;background:none;border:none;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none}
@@ -95,7 +98,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .frow-tags::-webkit-scrollbar{display:none}
 .ftag{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s}
 .ftag.on{background:rgba(232,0,13,.1);border-color:var(--red);color:var(--red)}
-
+ 
 /* PIECE CARD */
 .pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px;border-left:3px solid transparent}
 .pc.sale{border-left-color:var(--green)}.pc.sold{border-left-color:var(--muted)}.pc.resv{border-left-color:var(--yellow)}
@@ -110,7 +113,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .pc-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
 .tag{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:11px;color:var(--muted)}
 .pc-prix{font-size:16px;font-weight:800;color:var(--red)}
-
+ 
 /* FORM */
 .flbl{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:1px}
 .finp{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
@@ -120,7 +123,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .ref-preview{background:rgba(232,0,13,.08);border:1px solid rgba(232,0,13,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--grey)}
 .ref-preview strong{color:var(--red);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
-
+ 
 /* PHOTOS */
 .photo-zone{background:var(--bg2);border:2px dashed var(--border);border-radius:14px;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin-bottom:10px}
 .photo-zone:active{border-color:var(--red)}
@@ -132,14 +135,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 .photo-thumb img{width:100%;height:100%;object-fit:cover}
 .photo-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.8);border:none;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:14px}
 #photo-input{display:none}
-
+ 
 /* BTNS */
 .btn{width:100%;padding:16px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;transition:.2s}
 .btn-primary{background:var(--red);color:var(--white);box-shadow:0 4px 20px rgba(232,0,13,.3)}
 .btn-primary:active{background:var(--red3);transform:scale(.98)}
 .btn-primary:disabled{opacity:.5;pointer-events:none}
 .btn-sec{background:var(--bg2);border:1px solid var(--border);color:var(--grey);margin-top:8px}
-
+ 
 /* LOADER / TOAST / EMPTY */
 .loader{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px 20px;color:var(--muted);font-size:14px}
 .spin{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
@@ -154,7 +157,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
 </style>
 </head>
 <body>
-
+ 
 <!-- LOGIN -->
 <div id="login">
   <div class="l-logo">LS<span>MX</span></div>
@@ -172,7 +175,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
     <div class="err-msg" id="err-msg"></div>
   </div>
 </div>
-
+ 
 <!-- APP -->
 <div id="app">
   <div class="hdr">
@@ -186,7 +189,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
       <div class="sync-txt" id="sync-txt">Synchronisation...</div>
     </div>
   </div>
-
+ 
   <!-- DASHBOARD -->
   <div class="pg on" id="pg-dash">
     <div class="kgrid">
@@ -230,7 +233,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
     <div class="sec">Dernières pièces ajoutées</div>
     <div id="dash-recents"><div class="loader"><div class="spin"></div> Chargement...</div></div>
   </div>
-
+ 
   <!-- STOCK -->
   <div class="pg" id="pg-stock">
     <div class="sbar">
@@ -245,12 +248,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
     </div>
     <div id="stock-list"><div class="loader"><div class="spin"></div> Chargement...</div></div>
   </div>
-
+ 
   <!-- AJOUTER -->
   <div class="pg" id="pg-add">
     <div class="sec" style="margin-top:0">Nouvelle pièce</div>
     <div class="ref-preview" id="ref-preview">Prochaine référence : <strong id="next-ref">Chargement...</strong></div>
-
+ 
     <div class="frow">
       <label class="flbl">📸 Photos</label>
       <div class="photo-zone" id="photo-zone" onclick="document.getElementById('photo-input').click()">
@@ -261,12 +264,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
       <input type="file" id="photo-input" accept="image/*" capture="environment" multiple onchange="handlePhotos(this)">
       <div class="photo-grid" id="photo-grid"></div>
     </div>
-
+ 
     <div class="frow">
       <label class="flbl">Produit / Pièce *</label>
       <input class="finp" type="text" id="f-produit" placeholder="Ex: Échappement KTM 125 SX 2020">
     </div>
-
+ 
     <div class="frow2">
       <div>
         <label class="flbl">Catégorie *</label>
@@ -292,7 +295,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
         <select class="finp" id="f-souscat"><option value="">— Catégorie d'abord —</option></select>
       </div>
     </div>
-
+ 
     <div class="frow2">
       <div>
         <label class="flbl">Marque *</label>
@@ -309,7 +312,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
         <input class="finp" type="text" id="f-modele" placeholder="Ex: 125 SX">
       </div>
     </div>
-
+ 
     <div class="frow2">
       <div><label class="flbl">Année début</label><input class="finp" type="number" id="f-annee-deb" placeholder="2020" min="1970" max="2030"></div>
       <div><label class="flbl">Année fin</label><input class="finp" type="number" id="f-annee-fin" placeholder="2023" min="1970" max="2030"></div>
@@ -381,7 +384,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
     <button class="btn btn-sec" onclick="resetForm()">Réinitialiser</button>
     <div style="height:20px"></div>
   </div>
-
+ 
   <div class="bnav">
     <button class="nv on" id="nv-dash" onclick="goPage('dash')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -406,9 +409,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);mi
     </button>
   </div>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <script>
 const PROXY      = 'https://lsmx-proxy.lsmx-pieces.workers.dev/?url=';
 const WOO_URL    = 'https://lsmx-pieces.com';
@@ -416,13 +419,13 @@ const WOO_KEY    = 'ck_0b45c9257dc12c026e5594ed9495005c0da70569';
 const WOO_SECRET = 'cs_5928db193c5123472bbf7a3e2f1aebf37a3c1c9b';
 const SHEET_ID   = '1isKWzm3fjowCL6kwJlgS3PTfug6DJjvPpC-teEyneUg';
 const SHEET_NAME = encodeURIComponent('📦 Stock');
-
+ 
 // Codes d'accès
 const USERS = {
   'Esteban': 'HjziugDD2667%0@4525s',
   'Maxence': 'HjziugDD2667%0@4525s',
 };
-
+ 
 // Catégories WooCommerce avec IDs réels
 const CATS = {
   'Admission / Carburation': { id:444, subs: {
@@ -474,13 +477,13 @@ const CATS = {
     'Axes moteur / axes bras oscillant / axes roues':520,'Entretoises':521,'Kits visseries':519
   }},
 };
-
+ 
 const MARQUE_IDS = {
   'KTM':72,'YAMAHA':71,'HONDA':67,'KAWASAKI':69,'SUZUKI':70,'HUSQVARNA':68,'GASGAS':275
 };
-
+ 
 let currentUser='Esteban', sheetData=[], filterStatut='', photos=[], syncInterval=null, nextRef='';
-
+ 
 // ── LOGIN ────────────────────────────────────────────────────
 function selectUser(u){
   currentUser=u;
@@ -489,7 +492,7 @@ function selectUser(u){
   document.querySelectorAll('.u-btn').forEach(b=>b.classList.remove('on'));
   document.getElementById('btn-'+u).classList.add('on');
 }
-
+ 
 function doLogin(){
   const code = document.getElementById('code-input').value;
   if(USERS[currentUser] === code){
@@ -503,17 +506,17 @@ function doLogin(){
     setTimeout(()=>document.getElementById('err-msg').textContent='',3000);
   }
 }
-
+ 
 // Connexion aussi avec Entrée
 document.getElementById('code-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-
+ 
 function logout(){
   clearInterval(syncInterval);
   document.getElementById('code-input').value='';
   document.getElementById('login').style.display='flex';
   document.getElementById('app').style.display='none';
 }
-
+ 
 // ── NAVIGATION ───────────────────────────────────────────────
 function goPage(p){
   document.querySelectorAll('.pg').forEach(el=>el.classList.remove('on'));
@@ -523,26 +526,26 @@ function goPage(p){
   const t={dash:'Dashboard',stock:'Mon Stock',add:'Ajouter une pièce'};
   document.getElementById('hdr-title').textContent=t[p]||'';
 }
-
+ 
 // ── TOAST ────────────────────────────────────────────────────
 function toast(msg,type='ok'){
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast '+type+' show';
   setTimeout(()=>t.classList.remove('show'),3500);
 }
-
+ 
 function wooAuth(){ return 'Basic '+btoa(WOO_KEY+':'+WOO_SECRET); }
 function proxyUrl(url){ return PROXY+encodeURIComponent(url); }
-
+ 
 // ── SYNC ────────────────────────────────────────────────────
 function startSync(){ loadAll(); syncInterval=setInterval(loadAll,30000); }
-
+ 
 async function loadAll(){
   setSyncStatus('sync');
   try{ await loadSheet(); setSyncStatus('ok'); }
   catch(e){ setSyncStatus('err'); }
 }
-
+ 
 function setSyncStatus(s){
   const dot=document.getElementById('sync-dot');
   const txt=document.getElementById('sync-txt');
@@ -550,7 +553,7 @@ function setSyncStatus(s){
   else if(s==='ok'){ dot.style.background='var(--green)'; txt.textContent='Synchronisé · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
   else{ dot.style.background='var(--red)'; txt.textContent='Hors ligne'; }
 }
-
+ 
 // ── GOOGLE SHEETS ────────────────────────────────────────────
 async function loadSheet(){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
@@ -567,12 +570,12 @@ async function loadSheet(){
   renderDash();
   calculerProchainRef();
 }
-
+ 
 // ── PROCHAIN REF ─────────────────────────────────────────────
 async function chargerProchainRef(){
   await loadSheet();
 }
-
+ 
 function calculerProchainRef(){
   // Trouver la dernière référence dans Google Sheets
   // La colonne peut contenir des formules donc on filtre les vrais nombres
@@ -584,13 +587,13 @@ function calculerProchainRef(){
       return isNaN(num) ? 0 : num;
     })
     .filter(r => r > 2600000); // Seulement les refs LSMX valides
-
+ 
   const maxRef = refs.length > 0 ? Math.max(...refs) : 2600000;
   nextRef = String(maxRef + 1);
   const el = document.getElementById('next-ref');
   if(el) el.textContent = nextRef;
 }
-
+ 
 // ── STOCK ────────────────────────────────────────────────────
 function renderStock(){
   const list=document.getElementById('stock-list');
@@ -612,9 +615,9 @@ function renderStock(){
     const matchF=!filterStatut||statut===filterStatut;
     return matchS&&matchF;
   });
-
+ 
   if(!items.length){ list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Aucune pièce trouvée</p></div>'; return; }
-
+ 
   list.innerHTML=items.map(row=>{
     const statut=String(row['Statut']||'En vente');
     const cls=statut==='En vente'?'sale':statut==='Vendue'?'sold':'resv';
@@ -642,10 +645,10 @@ function renderStock(){
     </div>`;
   }).join('');
 }
-
+ 
 function filterStock(){ renderStock(); }
 function setFilter(s,el){ filterStatut=s; document.querySelectorAll('.ftag').forEach(t=>t.classList.remove('on')); el.classList.add('on'); renderStock(); }
-
+ 
 // ── DASHBOARD ────────────────────────────────────────────────
 function renderDash(){
   const vente=sheetData.filter(r=>r['Statut']==='En vente').length;
@@ -655,7 +658,7 @@ function renderDash(){
   const valeur=sheetData.filter(r=>r['Statut']==='En vente').reduce((s,r)=>s+(Number(r['Prix vente (€)'])||0),0);
   const achat=sheetData.filter(r=>r['Statut']==='En vente').reduce((s,r)=>s+(Number(r['Prix achat (€)'])||0),0);
   const marge=valeur-achat;
-
+ 
   document.getElementById('k-vente').textContent=vente;
   document.getElementById('k-vendu').textContent=vendu;
   document.getElementById('k-resv').textContent=resv;
@@ -665,7 +668,7 @@ function renderDash(){
   document.getElementById('s-vente').textContent=vente;
   document.getElementById('s-vendu').textContent=vendu;
   document.getElementById('s-resv').textContent=resv;
-
+ 
   const recents=[...sheetData].reverse().slice(0,5);
   document.getElementById('dash-recents').innerHTML=recents.map(row=>{
     const statut=String(row['Statut']||'En vente');
@@ -679,7 +682,7 @@ function renderDash(){
     </div>`;
   }).join('');
 }
-
+ 
 // ── FORM ────────────────────────────────────────────────────
 function updateSousCat(){
   const cat=document.getElementById('f-categorie').value;
@@ -689,7 +692,7 @@ function updateSousCat(){
     Object.keys(CATS[cat].subs).forEach(sc=>sel.innerHTML+=`<option>${sc}</option>`);
   }
 }
-
+ 
 // ── PHOTOS ───────────────────────────────────────────────────
 function handlePhotos(input){
   Array.from(input.files).forEach(file=>{
@@ -704,17 +707,17 @@ function renderPhotos(){
   document.getElementById('photo-zone').style.display=photos.length>=6?'none':'flex';
 }
 function removePhoto(i){ photos.splice(i,1); renderPhotos(); }
-
+ 
 // ── SOUMETTRE ────────────────────────────────────────────────
 async function soumettre(){
   const produit=document.getElementById('f-produit').value.trim();
   const vente=document.getElementById('f-vente').value;
   if(!produit){ toast('❌ Nom du produit obligatoire','err'); return; }
   if(!vente){ toast('❌ Prix de vente obligatoire','err'); return; }
-
+ 
   const btn=document.getElementById('btn-submit');
   btn.textContent='⏳ Publication...'; btn.disabled=true;
-
+ 
   try{
     const d={
       produit, vente,
@@ -739,20 +742,20 @@ async function soumettre(){
       desc:       document.getElementById('f-desc').value,
       ref:        nextRef,
     };
-
+ 
     const annee=buildAnnee(d.anneeDeb,d.anneeFin);
     const poidsNum=parseFloat(d.poids)||0;
     const colis=poidsNum<=5?'Petit colis':poidsNum<=15?'Moyen colis':'Grand colis';
     const poidsStr=poidsNum>0?`${poidsNum} kg — ${colis}`:'';
     const dims=poidsNum<=5?{length:'30',width:'20',height:'15'}:poidsNum<=15?{length:'50',width:'40',height:'30'}:{length:'80',width:'60',height:'50'};
     const status=d.statut==='En vente'?'publish':d.statut==='Réservé'?'draft':'publish';
-
+ 
     // Catégories avec vrais IDs
     const catObj = CATS[d.categorie];
     const cats = [{id:36}]; // Pièces d'occasion
     if(catObj){ cats.push({id:catObj.id}); }
     if(d.sousCat && catObj && catObj.subs[d.sousCat]){ cats.push({id:catObj.subs[d.sousCat]}); }
-
+ 
     const payload={
       name: d.produit,
       type:'simple', status, catalog_visibility:'visible',
@@ -777,7 +780,7 @@ async function soumettre(){
         {key:'_seopress_robots_primary_cat',value:'none'},
       ]
     };
-
+ 
     // Créer produit WooCommerce
     const r=await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products`),{
       method:'POST',
@@ -787,7 +790,7 @@ async function soumettre(){
     const json=await r.json();
     if(!json.id)throw new Error(json.message||'Erreur création WooCommerce');
     const wooId=json.id;
-
+ 
     // Marque
     const brandId=MARQUE_IDS[d.marque];
     if(brandId){
@@ -797,7 +800,7 @@ async function soumettre(){
         body:JSON.stringify({brands:[{id:brandId}]})
       });
     }
-
+ 
     // Upload photos
     if(photos.length>0){
       toast('📸 Upload des photos...','info');
@@ -825,22 +828,22 @@ async function soumettre(){
         });
       }
     }
-
+ 
     toast(`✅ "${d.produit}" publié ! (Réf: ${d.ref})`,'ok');
     resetForm();
     setTimeout(()=>{ loadAll(); calculerProchainRef(); },2000);
-
+ 
   }catch(e){ toast('❌ '+e.message,'err'); }
   finally{ btn.textContent='🚀 Publier sur le site'; btn.disabled=false; }
 }
-
+ 
 // ── HELPERS ──────────────────────────────────────────────────
 function buildAnnee(deb,fin){
   const d=String(deb||'').replace('.0','').trim();
   const f=String(fin||'').replace('.0','').trim();
   if(d&&f&&d===f)return d; if(d&&f)return`${d}-${f}`; return d||f||'';
 }
-
+ 
 function buildCaract(d,annee,poidsStr){
   const mod=[d.marque,d.modele,annee].filter(Boolean).join(' ');
   const orig=d.origine==='OUI'?"Pièce d'origine":'Pièce adaptable';
@@ -861,7 +864,7 @@ function buildCaract(d,annee,poidsStr){
   if(d.serie&&d.serie!='/')lines.push(`<strong>N° série pièce :</strong> ${d.serie}`);
   return lines.join('\n');
 }
-
+ 
 function buildMeta(d,annee){
   const souscat=(d.sousCat||'').toLowerCase();
   const marque=d.marque||'';
@@ -872,7 +875,7 @@ function buildMeta(d,annee){
   // Meta cohérente — pas de contradiction état/condition
   return `Pièce occasion : ${souscat} ${marque} ${modele}${anneeStr}. État ${etat}, fonctionnelle. Pièce moto ${moto} testée. Expédition rapide depuis la France.`.substring(0,160);
 }
-
+ 
 function buildAttrs(d,annee){
   const attrs=[];
   if(d.marque)attrs.push({name:'Marque',slug:'pa_marque',visible:true,options:[d.marque]});
@@ -881,7 +884,7 @@ function buildAttrs(d,annee){
   if(d.etat)attrs.push({name:'État',slug:'pa_etat',visible:true,options:[d.etat]});
   return attrs;
 }
-
+ 
 function resetForm(){
   document.querySelectorAll('#pg-add .finp').forEach(el=>el.value='');
   document.getElementById('f-etat').value='Très bon';
@@ -901,3 +904,4 @@ function resetForm(){
 </script>
 </body>
 </html>
+ 
