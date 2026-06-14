@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LSMX Stock">
+<meta name="theme-color" content="#0d0d0d">
+<title>LSMX — Stock Moto</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d0d;--bg2:#161616;--bg3:#1e1e1e;--card:#141414;
+  --border:#2a2a2a;--red:#e8000d;--red3:#c0000a;
+  --white:#ffffff;--grey:#a0a0a0;--muted:#555;
+  --green:#00c853;--yellow:#ffd600;--blue:#2979ff;
+  --radius:14px;
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* LOGIN */
+#login{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:linear-gradient(180deg,#1a0002 0%,var(--bg) 50%)}
+.l-logo{font-family:'Bebas Neue',sans-serif;font-size:88px;letter-spacing:8px;color:var(--white);line-height:1}
+.l-logo span{color:var(--red)}
+.l-sub{font-size:11px;color:var(--muted);letter-spacing:5px;text-transform:uppercase;margin-bottom:48px;margin-top:6px}
+.l-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px 24px;width:100%;max-width:340px}
+.l-who{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+.user-row{display:flex;gap:8px;margin-bottom:20px}
+.u-btn{flex:1;padding:13px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;text-align:center}
+.u-btn.on{border-color:var(--red);background:rgba(232,0,13,.1);color:var(--white)}
+.code-input-wrap{margin-bottom:16px}
+.code-input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;transition:border-color .2s;letter-spacing:2px;-webkit-appearance:none}
+.code-input:focus{border-color:var(--red)}
+.btn-login{width:100%;padding:15px;border-radius:12px;border:none;background:var(--red);color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-login:active{background:var(--red3)}
+.err-msg{color:var(--red);font-size:13px;text-align:center;margin-top:12px;min-height:18px;font-weight:500}
+
+/* APP */
+#app{display:none;flex-direction:column;min-height:100dvh;padding-bottom:calc(66px + var(--sab))}
+.hdr{padding:calc(var(--sat) + 14px) 18px 12px;position:sticky;top:0;z-index:50;background:rgba(13,13,13,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;color:var(--white)}
+.hdr-logo span{color:var(--red)}
+.hdr-user{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--grey);cursor:pointer}
+.hdr-title{font-size:20px;font-weight:700}
+.hdr-sync{display:flex;align-items:center;gap:6px;margin-top:4px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sync-txt{font-size:11px;color:var(--muted)}
+
+/* NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,13,.97);border-top:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:flex-end;padding:6px 0 calc(6px + var(--sab));z-index:100}
+.nv{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;transition:color .2s}
+.nv.on{color:var(--red)}
+.nv svg{width:22px;height:22px;stroke-width:1.8}
+.nv-add-wrap{flex:1;display:flex;justify-content:center;align-items:flex-start;padding-top:2px}
+.nv-add{width:52px;height:52px;border-radius:50%;background:var(--red);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(232,0,13,.5);transition:.2s;margin-top:-16px}
+.nv-add:active{transform:scale(.9);background:var(--red3)}
+.nv-add svg{width:26px;height:26px;stroke:#fff;stroke-width:2.5}
+
+/* PAGES */
+.pg{display:none;padding:14px 16px}
+.pg.on{display:block}
+
+/* DASHBOARD */
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.kcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;overflow:hidden}
+.kcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kcard.c-red::before{background:var(--red)}.kcard.c-green::before{background:var(--green)}
+.kcard.c-yellow::before{background:var(--yellow)}.kcard.c-blue::before{background:var(--blue)}
+.kcard.wide{grid-column:1/-1}
+.klbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:600}
+.kval{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1}
+.kval.c-red{color:var(--red)}.kval.c-green{color:var(--green)}.kval.c-yellow{color:var(--yellow)}.kval.c-blue{color:var(--blue)}
+.ksub{font-size:11px;color:var(--muted);margin-top:3px}
+.sec{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* STAT ROW */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.stat-mini{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.stat-mini .sv{font-family:'Bebas Neue',sans-serif;font-size:22px}
+.stat-mini .sl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* STOCK */
+.sbar{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;gap:10px;margin-bottom:12px}
+.sbar input{flex:1;background:none;border:none;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none}
+.sbar input::placeholder{color:var(--muted)}
+.sbar svg{stroke:var(--muted);width:18px;height:18px;flex-shrink:0}
+.frow-tags{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px;scrollbar-width:none}
+.frow-tags::-webkit-scrollbar{display:none}
+.ftag{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s}
+.ftag.on{background:rgba(232,0,13,.1);border-color:var(--red);color:var(--red)}
+
+/* PIECE CARD */
+.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px;border-left:3px solid transparent}
+.pc.sale{border-left-color:var(--green)}.pc.sold{border-left-color:var(--muted)}.pc.resv{border-left-color:var(--yellow)}
+.pc:active{background:var(--bg2)}
+.pc-ref{font-size:10px;color:var(--red);font-weight:800;letter-spacing:1px;margin-bottom:4px;font-family:'Bebas Neue',sans-serif;font-size:14px}
+.pc-name{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:8px}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.badge{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge.sale{background:rgba(0,200,83,.15);color:var(--green);border:1px solid rgba(0,200,83,.3)}
+.badge.sold{background:rgba(80,80,80,.2);color:var(--muted);border:1px solid var(--border)}
+.badge.resv{background:rgba(255,214,0,.12);color:var(--yellow);border:1px solid rgba(255,214,0,.3)}
+.pc-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.tag{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:11px;color:var(--muted)}
+.pc-prix{font-size:16px;font-weight:800;color:var(--red)}
+
+/* FORM */
+.flbl{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:1px}
+.finp{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.finp:focus{border-color:var(--red)}
+.finp option{background:#1a1a1a}
+.frow{margin-bottom:12px}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ref-preview{background:rgba(232,0,13,.08);border:1px solid rgba(232,0,13,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--grey)}
+.ref-preview strong{color:var(--red);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
+
+/* PHOTOS */
+.photo-zone{background:var(--bg2);border:2px dashed var(--border);border-radius:14px;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin-bottom:10px}
+.photo-zone:active{border-color:var(--red)}
+.photo-zone svg{width:32px;height:32px;stroke:var(--muted)}
+.photo-zone p{font-size:13px;color:var(--muted)}
+.photo-zone span{font-size:11px;color:var(--muted);opacity:.6}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.photo-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;background:var(--bg2)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.8);border:none;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:14px}
+#photo-input{display:none}
+
+/* BTNS */
+.btn{width:100%;padding:16px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;transition:.2s}
+.btn-primary{background:var(--red);color:var(--white);box-shadow:0 4px 20px rgba(232,0,13,.3)}
+.btn-primary:active{background:var(--red3);transform:scale(.98)}
+.btn-primary:disabled{opacity:.5;pointer-events:none}
+.btn-sec{background:var(--bg2);border:1px solid var(--border);color:var(--grey);margin-top:8px}
+
+/* LOADER / TOAST / EMPTY */
+.loader{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px 20px;color:var(--muted);font-size:14px}
+.spin{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;top:calc(var(--sat) + 74px);left:50%;transform:translateX(-50%) translateY(-10px);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:.25s;white-space:nowrap;pointer-events:none;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--red);color:var(--red)}
+.toast.info{border-color:var(--blue);color:var(--blue)}
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty svg{width:44px;height:44px;stroke:var(--border);margin-bottom:12px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:flex-end;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--bg2);border-radius:24px 24px 0 0;padding:20px 18px calc(20px + var(--sab));width:100%;max-height:92dvh;overflow-y:auto;border:1px solid var(--border)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--white)}
+</style>
+</head>
+<body>
+
+<!-- MODAL MODIFICATION COMPLÈTE -->
+<div class="modal-overlay" id="modal-modif">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Modifier la pièce</div>
+
+    <div class="frow">
+      <label class="flbl">📸 Photos existantes</label>
+      <div class="photo-grid" id="m-photo-existing"></div>
+      <div class="photo-zone" id="m-photo-zone" onclick="document.getElementById('m-photo-input').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <p>Ajouter des photos</p>
+        <span>Jusqu'à 10 photos au total</span>
+      </div>
+      <input type="file" id="m-photo-input" accept="image/*" capture="environment" multiple onchange="handleModifPhotos(this)">
+      <div class="photo-grid" id="m-photo-new"></div>
+    </div>
+
+    <div class="frow">
+      <label class="flbl">Produit / Pièce *</label>
+      <input class="finp" type="text" id="m-produit" placeholder="Nom du produit">
+    </div>
+    <div class="frow2">
+      <div>
+        <label class="flbl">Catégorie</label>
+        <select class="finp" id="m-categorie" onchange="updateModifSousCat()">
+          <option value="">— Choisir —</option>
+          <option>Admission / Carburation</option><option>Carénages</option>
+          <option>Commandes / Poste de pilotage</option><option>Échappement</option>
+          <option>Électricité</option><option>Freinage</option><option>Partie cycle</option>
+          <option>Pièces moteur</option><option>Refroidissement</option><option>Roues</option>
+          <option>Suspension</option><option>Transmission</option><option>Visserie / Divers</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Sous-catégorie</label>
+        <select class="finp" id="m-souscat"><option value="">— Catégorie d'abord —</option></select>
+      </div>
+    </div>
+    <div class="frow2">
+      <div>
+        <label class="flbl">Marque</label>
+        <select class="finp" id="m-marque">
+          <option value="">— Choisir —</option>
+          <option>KTM</option><option>YAMAHA</option><option>HONDA</option>
+          <option>KAWASAKI</option><option>SUZUKI</option><option>HUSQVARNA</option>
+          <option>GASGAS</option><option>BETA</option><option>SHERCO</option>
+          <option>TM RACING</option><option>FANTIC</option><option>RIEJU</option><option>TRIUMPH</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Modèle</label>
+        <input class="finp" type="text" id="m-modele" placeholder="Ex: 125 SX">
+      </div>
+    </div>
+    <div class="frow2">
+      <div><label class="flbl">Année début</label><input class="finp" type="number" id="m-annee-deb" placeholder="2020" min="1970" max="2030"></div>
+      <div><label class="flbl">Année fin</label><input class="finp" type="number" id="m-annee-fin" placeholder="2023" min="1970" max="2030"></div>
+    </div>
+    <div class="frow2">
+      <div>
+        <label class="flbl">État général</label>
+        <select class="finp" id="m-etat">
+          <option value="Trés Bon">Très bon</option>
+          <option value="Bon">Bon</option>
+          <option value="Neuf">Neuf</option>
+          <option value="Mauvais">Mauvais</option>
+          <option value="À réparer">À réparer</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Fonctionnement</label>
+        <select class="finp" id="m-fonct">
+          <option>Fonctionnelle</option><option>Non-fonctionnelle</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow2">
+      <div><label class="flbl">Poids (kg)</label><input class="finp" type="number" id="m-poids" placeholder="Ex: 3" step="0.1" min="0"></div>
+      <div><label class="flbl">Quantité</label><input class="finp" type="number" id="m-quantite" value="1" min="1"></div>
+    </div>
+    <div class="frow2">
+      <div><label class="flbl">Prix achat (€)</label><input class="finp" type="number" id="m-achat" placeholder="0" min="0"></div>
+      <div><label class="flbl">Prix vente (€)</label><input class="finp" type="number" id="m-vente" placeholder="0" min="0"></div>
+    </div>
+    <div class="frow2">
+      <div><label class="flbl">Emplacement</label><input class="finp" type="text" id="m-empl" placeholder="Ex: A1"></div>
+      <div>
+        <label class="flbl">Note /10</label>
+        <select class="finp" id="m-note">
+          <option value="">—</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow2">
+      <div>
+        <label class="flbl">Pièce d'origine</label>
+        <select class="finp" id="m-origine"><option value="OUI">OUI</option><option value="NON">NON</option></select>
+      </div>
+      <div><label class="flbl">Marque pièce</label><input class="finp" type="text" id="m-marque-p" placeholder="Ex: OEM"></div>
+    </div>
+    <div class="frow2">
+      <div>
+        <label class="flbl">Couleur</label>
+        <select class="finp" id="m-couleur">
+          <option>Aucune</option><option>Blanc</option><option>Noir</option><option>Gris</option>
+          <option>Rouge</option><option>Bleu</option><option>Vert</option><option>Orange</option>
+          <option>Jaune</option><option>Violet</option><option>Rose</option>
+          <option>Marron / Brun</option><option>Beige</option>
+        </select>
+      </div>
+      <div><label class="flbl">N° série</label><input class="finp" type="text" id="m-serie" placeholder="Optionnel"></div>
+    </div>
+    <div class="frow">
+      <label class="flbl">Statut</label>
+      <select class="finp" id="m-statut">
+        <option>En vente</option><option>Réservé</option><option>Vendue</option>
+      </select>
+    </div>
+    <div class="frow">
+      <label class="flbl">Description</label>
+      <textarea class="finp" id="m-desc" rows="3" style="resize:none" placeholder="Description..."></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="sauvegarderModif()" id="btn-modif">💾 Mettre à jour</button>
+    <button class="btn btn-sec" onclick="fermerModif()">Annuler</button>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="l-logo">LS<span>MX</span></div>
+  <div class="l-sub">Stock Pièces Moto</div>
+  <div class="l-card">
+    <div class="l-who">Qui êtes-vous ?</div>
+    <div class="user-row">
+      <button class="u-btn on" onclick="selectUser('Esteban')" id="btn-Esteban">ESTEBAN</button>
+      <button class="u-btn" onclick="selectUser('Maxence')" id="btn-Maxence">MAXENCE</button>
+    </div>
+    <div class="code-input-wrap">
+      <input class="code-input" type="password" id="code-input" placeholder="Code d'accès" autocomplete="off">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Se connecter</button>
+    <div class="err-msg" id="err-msg"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="hdr-logo">LS<span>MX</span></div>
+      <div class="hdr-user" id="hdr-user" onclick="logout()">👤 —</div>
+    </div>
+    <div class="hdr-title" id="hdr-title">Dashboard</div>
+    <div class="hdr-sync">
+      <div class="sync-dot" id="sync-dot"></div>
+      <div class="sync-txt" id="sync-txt">Synchronisation...</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="pg on" id="pg-dash">
+    <div class="kgrid">
+      <div class="kcard c-green">
+        <div class="klbl">En vente</div>
+        <div class="kval c-green" id="k-vente">—</div>
+        <div class="ksub">pièces disponibles</div>
+      </div>
+      <div class="kcard c-red">
+        <div class="klbl">Vendues</div>
+        <div class="kval c-red" id="k-vendu">—</div>
+        <div class="ksub">pièces écoulées</div>
+      </div>
+      <div class="kcard c-yellow">
+        <div class="klbl">Réservées</div>
+        <div class="kval c-yellow" id="k-resv">—</div>
+        <div class="ksub">en attente</div>
+      </div>
+      <div class="kcard c-blue">
+        <div class="klbl">Total stock</div>
+        <div class="kval c-blue" id="k-total">—</div>
+        <div class="ksub">pièces référencées</div>
+      </div>
+      <div class="kcard wide c-red">
+        <div class="klbl">Valeur stock (prix vente)</div>
+        <div class="kval c-red" id="k-valeur">— €</div>
+        <div class="ksub">estimation du stock disponible</div>
+      </div>
+      <div class="kcard wide c-green">
+        <div class="klbl">Marge totale estimée</div>
+        <div class="kval c-green" id="k-marge">— €</div>
+        <div class="ksub">bénéfice potentiel sur le stock en vente</div>
+      </div>
+    </div>
+    <div class="sec">Répartition par statut</div>
+    <div class="stat-row">
+      <div class="stat-mini"><div class="sv c-green" id="s-vente" style="color:var(--green)">—</div><div class="sl">En vente</div></div>
+      <div class="stat-mini"><div class="sv" id="s-vendu" style="color:var(--red)">—</div><div class="sl">Vendues</div></div>
+      <div class="stat-mini"><div class="sv" id="s-resv" style="color:var(--yellow)">—</div><div class="sl">Réservées</div></div>
+    </div>
+    <div class="sec">Dernières pièces ajoutées</div>
+    <div id="dash-recents"><div class="loader"><div class="spin"></div> Chargement...</div></div>
+  </div>
+
+  <!-- STOCK -->
+  <div class="pg" id="pg-stock">
+    <div class="sbar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="search-inp" placeholder="Réf, nom, marque, modèle..." oninput="filterStock()">
+    </div>
+    <div class="frow-tags">
+      <div class="ftag on" onclick="setFilter('',this)">Tout</div>
+      <div class="ftag" onclick="setFilter('En vente',this)">En vente</div>
+      <div class="ftag" onclick="setFilter('Vendue',this)">Vendues</div>
+      <div class="ftag" onclick="setFilter('Réservé',this)">Réservées</div>
+    </div>
+    <div id="stock-list"><div class="loader"><div class="spin"></div> Chargement...</div></div>
+  </div>
+
+  <!-- AJOUTER -->
+  <div class="pg" id="pg-add">
+    <div class="sec" style="margin-top:0">Nouvelle pièce</div>
+    <div class="ref-preview" id="ref-preview">Prochaine référence : <strong id="next-ref">Chargement...</strong></div>
+
+    <div class="frow">
+      <label class="flbl">📸 Photos</label>
+      <div class="photo-zone" id="photo-zone" onclick="document.getElementById('photo-input').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <p>Appuyer pour prendre une photo</p>
+        <span>Jusqu'à 10 photos</span>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" capture="environment" multiple onchange="handlePhotos(this)">
+      <div class="photo-grid" id="photo-grid"></div>
+    </div>
+
+    <div class="frow">
+      <label class="flbl">Produit / Pièce *</label>
+      <input class="finp" type="text" id="f-produit" placeholder="Ex: Échappement KTM 125 SX 2020">
+    </div>
+
+    <div class="frow2">
+      <div>
+        <label class="flbl">Catégorie *</label>
+        <select class="finp" id="f-categorie" onchange="updateSousCat()">
+          <option value="">— Choisir —</option>
+          <option>Admission / Carburation</option>
+          <option>Carénages</option>
+          <option>Commandes / Poste de pilotage</option>
+          <option>Échappement</option>
+          <option>Électricité</option>
+          <option>Freinage</option>
+          <option>Partie cycle</option>
+          <option>Pièces moteur</option>
+          <option>Refroidissement</option>
+          <option>Roues</option>
+          <option>Suspension</option>
+          <option>Transmission</option>
+          <option>Visserie / Divers</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Sous-catégorie *</label>
+        <select class="finp" id="f-souscat"><option value="">— Catégorie d'abord —</option></select>
+      </div>
+    </div>
+
+    <div class="frow2">
+      <div>
+        <label class="flbl">Marque *</label>
+        <select class="finp" id="f-marque">
+          <option value="">— Choisir —</option>
+          <option>KTM</option><option>YAMAHA</option><option>HONDA</option>
+          <option>KAWASAKI</option><option>SUZUKI</option><option>HUSQVARNA</option>
+          <option>GASGAS</option><option>BETA</option><option>SHERCO</option>
+          <option>TM RACING</option><option>FANTIC</option><option>RIEJU</option><option>TRIUMPH</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Modèle</label>
+        <input class="finp" type="text" id="f-modele" placeholder="Ex: 125 SX">
+      </div>
+    </div>
+
+    <div class="frow2">
+      <div><label class="flbl">Année début</label><input class="finp" type="number" id="f-annee-deb" placeholder="2020" min="1970" max="2030"></div>
+      <div><label class="flbl">Année fin</label><input class="finp" type="number" id="f-annee-fin" placeholder="2023" min="1970" max="2030"></div>
+    </div>
+    <div class="frow2">
+      <div>
+        <label class="flbl">État général</label>
+        <select class="finp" id="f-etat">
+          <option value="Trés Bon">Très bon</option>
+          <option value="Bon">Bon</option>
+          <option value="Neuf">Neuf</option>
+          <option value="Mauvais">Mauvais</option>
+          <option value="À réparer">À réparer</option>
+        </select>
+      </div>
+      <div>
+        <label class="flbl">Fonctionnement</label>
+        <select class="finp" id="f-fonct">
+          <option>Fonctionnelle</option><option>Non-fonctionnelle</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow2">
+      <div><label class="flbl">Poids (kg)</label><input class="finp" type="number" id="f-poids" placeholder="Ex: 3" step="0.1" min="0"></div>
+      <div><label class="flbl">Quantité</label><input class="finp" type="number" id="f-quantite" value="1" min="1"></div>
+    </div>
+    <div class="frow2">
+      <div><label class="flbl">Prix achat (€)</label><input class="finp" type="number" id="f-achat" placeholder="0" min="0"></div>
+      <div><label class="flbl">Prix vente (€) *</label><input class="finp" type="number" id="f-vente" placeholder="0" min="0"></div>
+    </div>
+    <div class="frow2">
+      <div><label class="flbl">Emplacement</label><input class="finp" type="text" id="f-empl" placeholder="Ex: A1"></div>
+      <div>
+        <label class="flbl">Note /10</label>
+        <select class="finp" id="f-note">
+          <option value="">—</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow2">
+      <div>
+        <label class="flbl">Pièce d'origine</label>
+        <select class="finp" id="f-origine"><option value="OUI">OUI</option><option value="NON">NON</option></select>
+      </div>
+      <div><label class="flbl">Marque pièce</label><input class="finp" type="text" id="f-marque-p" placeholder="Ex: OEM"></div>
+    </div>
+    <div class="frow2">
+      <div>
+        <label class="flbl">Couleur</label>
+        <select class="finp" id="f-couleur">
+          <option>Aucune</option><option>Blanc</option><option>Noir</option><option>Gris</option>
+          <option>Rouge</option><option>Bleu</option><option>Vert</option><option>Orange</option>
+          <option>Jaune</option><option>Violet</option><option>Rose</option>
+          <option>Marron / Brun</option><option>Beige</option>
+        </select>
+      </div>
+      <div><label class="flbl">N° série</label><input class="finp" type="text" id="f-serie" placeholder="Optionnel"></div>
+    </div>
+    <div class="frow">
+      <label class="flbl">Statut</label>
+      <select class="finp" id="f-statut">
+        <option>En vente</option><option>Réservé</option><option>Vendue</option>
+      </select>
+    </div>
+    <div class="frow">
+      <label class="flbl">Description</label>
+      <textarea class="finp" id="f-desc" rows="3" placeholder="État détaillé, remarques, défauts..." style="resize:none"></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="soumettre()" id="btn-submit">🚀 Publier sur le site</button>
+    <button class="btn btn-sec" onclick="resetForm()">Réinitialiser</button>
+    <div style="height:20px"></div>
+  </div>
+
+  <div class="bnav">
+    <button class="nv on" id="nv-dash" onclick="goPage('dash')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nv" id="nv-stock" onclick="goPage('stock')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      Stock
+    </button>
+    <div class="nv-add-wrap">
+      <button class="nv-add" onclick="goPage('add')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+    <button class="nv" id="nv-add" onclick="goPage('add')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter
+    </button>
+    <button class="nv" onclick="logout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Quitter
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PROXY      = 'https://lsmx-proxy.lsmx-pieces.workers.dev/?url=';
+const WOO_URL    = 'https://lsmx-pieces.com';
+const WOO_KEY    = 'ck_0b45c9257dc12c026e5594ed9495005c0da70569';
+const WOO_SECRET = 'cs_5928db193c5123472bbf7a3e2f1aebf37a3c1c9b';
+const WP_USER    = 'LSMX';
+const WP_PASS    = 'VQPQ TfjP qynY T80b Sgtv zcU4';
+function wpAuth(){ return 'Basic '+btoa(WP_USER+':'+WP_PASS); }
+const SHEET_ID   = '1isKWzm3fjowCL6kwJlgS3PTfug6DJjvPpC-teEyneUg';
+const SHEET_NAME = encodeURIComponent('📦 Stock');
+
+// Codes d'accès
+const USERS = {
+  'Esteban': 'HjziugDD2667%0@4525s',
+  'Maxence': 'HjziugDD2667%0@4525s',
+};
+
+// Catégories WooCommerce avec IDs réels
+const CATS = {
+  'Admission / Carburation': { id:444, subs: {
+    'Boîte à air':448,'Boîtier injection':446,'Carburateur':445,
+    'Filtre à air':447,'Pipe d\'admission':449,'Pompe à essence':450,'Réservoir':451
+  }},
+  'Carénages': { id:503, subs: {
+    'Garde boue arrière':506,'Garde-boue avant':505,'Kit déco':511,'Kit plastique':504,
+    'Ouïes de radiateur':508,'Plaque avant':507,'Plaques latérales':509,
+    'Protège mains / radiateur / cadre / sabot moteur':510,'Selle et housse de selle':512
+  }},
+  'Commandes / Poste de pilotage': { id:494, subs: {
+    'Câbles (embrayage, gaz)':499,'Cocottes':498,'Guidon / mousse de guidon':495,
+    'Leviers (embrayage / frein)':496,'Pédale de frein':500,'Poignées':497,
+    'Repose-pieds':501,'Sélecteur':502
+  }},
+  'Échappement': { id:452, subs: {
+    'Bride / raccord':456,'Collecteur / échappement':455,'Ligne complète':454,
+    'Ressorts échappement':457,'Silencieux':453
+  }},
+  'Électricité': { id:475, subs: {
+    'Batterie':477,'Capteurs':480,'CDI / ECU':478,'Démarreur':479,'Faisceau électrique':476
+  }},
+  'Freinage': { id:469, subs: {
+    'Disques':471,'Durites de frein':474,'Étriers':470,'Maître-cylindre':472,'Plaquettes':473
+  }},
+  'Partie cycle': { id:458, subs: {
+    'Biellettes':462,'Boucle arrière':461,'Bras oscillant':460,'Cadre':459,'Té de fourche / pontets':463
+  }},
+  'Pièces moteur': { id:430, subs: {
+    'Allumage (stator, rotor)':441,'Arbre à cames':435,'Bielles':437,'Boîte de vitesses':440,
+    'Carter moteur':438,'Culasse':433,'Cylindre':431,'Embrayage':439,'Joints moteur':443,
+    'Piston':432,'Pompe à eau':442,'Soupapes':434,'Vilebrequin':436
+  }},
+  'Refroidissement': { id:513, subs: {
+    'Durites':515,'Radiateur':514,'Vase d\'expansion':516,'Ventilateur':517
+  }},
+  'Roues': { id:487, subs: {
+    'Jantes':490,'Moyeu':491,'Pneus':492,'Rayons':493,'Roue arrière':489,'Roue avant':488
+  }},
+  'Suspension': { id:464, subs: {
+    'Amortisseur arrière':466,'Fourche':465,
+    'Pièces de suspension (bagues, joints, kit départ...)':467,'Ressorts':468
+  }},
+  'Transmission': { id:481, subs: {
+    'Chaîne':482,'Couronne':483,'Guide chaîne':486,'Kit chaîne':485,'Pignon':484
+  }},
+  'Visserie / Divers': { id:518, subs: {
+    'Axes moteur / axes bras oscillant / axes roues':520,'Entretoises':521,'Kits visseries':519
+  }},
+};
+
+const MARQUE_IDS = {
+  'KTM':72,'YAMAHA':71,'HONDA':67,'KAWASAKI':69,'SUZUKI':70,'HUSQVARNA':68,'GASGAS':275
+};
+
+let currentUser='Esteban', sheetData=[], filterStatut='', photos=[], syncInterval=null, nextRef='';
+
+// ── LOGIN ────────────────────────────────────────────────────
+function selectUser(u){
+  currentUser=u;
+  document.getElementById('err-msg').textContent='';
+  document.getElementById('code-input').value='';
+  document.querySelectorAll('.u-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('btn-'+u).classList.add('on');
+}
+
+function doLogin(){
+  const code = document.getElementById('code-input').value;
+  if(USERS[currentUser] === code){
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='flex';
+    document.getElementById('hdr-user').textContent='👤 '+currentUser;
+    startSync();
+    chargerProchainRef();
+  } else {
+    document.getElementById('err-msg').textContent='❌ Code incorrect';
+    setTimeout(()=>document.getElementById('err-msg').textContent='',3000);
+  }
+}
+
+// Connexion aussi avec Entrée
+document.getElementById('code-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function logout(){
+  clearInterval(syncInterval);
+  document.getElementById('code-input').value='';
+  document.getElementById('login').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function goPage(p){
+  document.querySelectorAll('.pg').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nv').forEach(el=>el.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  if(document.getElementById('nv-'+p))document.getElementById('nv-'+p).classList.add('on');
+  const t={dash:'Dashboard',stock:'Mon Stock',add:'Ajouter une pièce'};
+  document.getElementById('hdr-title').textContent=t[p]||'';
+}
+
+// ── TOAST ────────────────────────────────────────────────────
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+function wooAuth(){ return 'Basic '+btoa(WOO_KEY+':'+WOO_SECRET); }
+function proxyUrl(url){ return PROXY+encodeURIComponent(url); }
+
+// ── SYNC ────────────────────────────────────────────────────
+function startSync(){ loadAll(); syncInterval=setInterval(loadAll,30000); }
+
+async function loadAll(){
+  setSyncStatus('sync');
+  try{
+    await loadSheet();
+    await syncStatutsWoo(); // Met à jour les statuts depuis WooCommerce
+    setSyncStatus('ok');
+  }
+  catch(e){ setSyncStatus('err'); }
+}
+
+// ── SYNC STATUTS DEPUIS WOOCOMMERCE ──────────────────────────
+async function syncStatutsWoo(){
+  try {
+    let all = [], page = 1;
+    while(true) {
+      const r = await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products?per_page=100&page=${page}&status=any&_fields=id,sku,status,stock_status,stock_quantity`), {
+        headers: { Authorization: wooAuth() }
+      });
+      if(!r.ok) break;
+      const data = await r.json();
+      if(!data.length) break;
+      all = all.concat(data);
+      page++;
+      if(data.length < 100) break;
+    }
+
+    // Créer un map SKU → statut WooCommerce
+    const wooStatuts = {};
+    for(const p of all) {
+      const sku = String(p.sku||'').trim();
+      if(!sku) continue;
+      let statut = 'En vente';
+      if(p.stock_status === 'outofstock' || p.stock_quantity === 0) statut = 'Vendue';
+      else if(p.status === 'draft') statut = 'Réservé';
+      wooStatuts[sku] = statut;
+    }
+
+    // Mettre à jour sheetData avec les statuts WooCommerce
+    sheetData = sheetData.map((row, idx) => {
+      const refRaw = String(row['Réf. LSMX']||'').trim();
+      const ref = refRaw && refRaw !== '0' ? refRaw : String(2600000 + idx + 1);
+      if(wooStatuts[ref] !== undefined) {
+        return { ...row, 'Statut': wooStatuts[ref] };
+      }
+      return row;
+    });
+
+    renderStock();
+    renderDash();
+  } catch(e) {
+    console.warn('Erreur sync statuts WooCommerce:', e);
+  }
+}
+
+function setSyncStatus(s){
+  const dot=document.getElementById('sync-dot');
+  const txt=document.getElementById('sync-txt');
+  if(s==='sync'){ dot.style.background='var(--yellow)'; txt.textContent='Synchronisation...'; }
+  else if(s==='ok'){ dot.style.background='var(--green)'; txt.textContent='Synchronisé · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+  else{ dot.style.background='var(--red)'; txt.textContent='Hors ligne'; }
+}
+
+// ── GOOGLE SHEETS ────────────────────────────────────────────
+async function loadSheet(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+  const r=await fetch(url);
+  const txt=await r.text();
+  const json=JSON.parse(txt.substring(txt.indexOf('(')+1,txt.lastIndexOf(')')));
+  const cols=json.table.cols.map(c=>c.label);
+  sheetData=json.table.rows.map(row=>{
+    const obj={};
+    cols.forEach((col,i)=>{ obj[col]=row.c[i]?(row.c[i].v!==null?row.c[i].v:''):''; });
+    return obj;
+  }).filter(r=>r['Produit / Pièce']);
+  renderStock();
+  renderDash();
+  calculerProchainRef();
+}
+
+// ── PROCHAIN REF ─────────────────────────────────────────────
+async function chargerProchainRef(){
+  await loadSheet();
+}
+
+function calculerProchainRef(){
+  // Basé sur le nombre de lignes dans Google Sheets
+  const nbLignes = sheetData.length;
+  nextRef = String(2600000 + nbLignes + 1);
+  const el = document.getElementById('next-ref');
+  if(el) el.textContent = nextRef;
+}
+
+// ── STOCK ────────────────────────────────────────────────────
+function renderStock(){
+  const list=document.getElementById('stock-list');
+  const search=(document.getElementById('search-inp').value||'').toLowerCase();
+  // Calculer les refs pour la recherche
+  const itemsWithRef = sheetData.map((row, idx) => {
+    const refRaw = String(row['Réf. LSMX']||'').trim();
+    const refCalc = refRaw && refRaw !== '0' && !refRaw.startsWith('=')
+      ? refRaw : String(2600000 + idx + 1);
+    return { row, ref: refCalc };
+  });
+
+  let items=itemsWithRef.filter(({row, ref})=>{
+    const nom=String(row['Produit / Pièce']||'').toLowerCase();
+    const marque=String(row['Marque']||'').toLowerCase();
+    const modele=String(row['Modèle']||'').toLowerCase();
+    const searchLow=search.toLowerCase();
+    const matchS=!search||
+      ref===search||
+      ref.includes(search)||
+      nom.includes(searchLow)||
+      marque.includes(searchLow)||
+      modele.includes(searchLow);
+    const statut=String(row['Statut']||'');
+    const matchF=!filterStatut||statut===filterStatut;
+    return matchS&&matchF;
+  }).map(({row})=>row);
+
+  if(!items.length){ list.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Aucune pièce trouvée</p></div>'; return; }
+
+  list.innerHTML=items.map((row, idx)=>{
+    const statut=String(row['Statut']||'En vente');
+    const cls=statut==='En vente'?'sale':statut==='Vendue'?'sold':'resv';
+    // UGS : utiliser la ref du sheet ou calculer depuis l'index global dans sheetData
+    const refRaw=String(row['Réf. LSMX']||'').trim();
+    const globalIdx = sheetData.indexOf(row);
+    const ref = refRaw && refRaw !== '0' && !refRaw.startsWith('=')
+      ? refRaw
+      : String(2600000 + (globalIdx >= 0 ? globalIdx + 1 : idx + 1));
+    const nom=String(row['Produit / Pièce']||'');
+    const marque=String(row['Marque']||'');
+    const modele=String(row['Modèle']||'');
+    const etat=String(row['État général']||'');
+    const cat=String(row['Catégorie']||'');
+    const prix=row['Prix vente (€)']?Number(row['Prix vente (€)']).toFixed(0)+' €':'—';
+    return `<div class="pc ${cls}">
+      <div class="pc-top">
+        <div class="pc-name" style="flex:1">${nom}</div>
+        <div class="badge ${cls}">${statut}</div>
+      </div>
+      <div class="pc-meta">
+        ${marque?`<span class="tag">${marque}</span>`:''}
+        ${modele?`<span class="tag">${modele}</span>`:''}
+        ${cat?`<span class="tag">${cat}</span>`:''}
+        ${etat?`<span class="tag">${etat}</span>`:''}
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <div class="pc-prix">${prix}</div>
+        <button onclick="ouvrirModif('${ref}')" style="background:rgba(232,0,13,.1);border:1px solid var(--red);border-radius:8px;padding:5px 12px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;">✏️ Modifier</button>
+      </div>
+      <div style="margin-top:6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:3px 8px;display:inline-block;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px">UGS : ${ref}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterStock(){ renderStock(); }
+function setFilter(s,el){ filterStatut=s; document.querySelectorAll('.ftag').forEach(t=>t.classList.remove('on')); el.classList.add('on'); renderStock(); }
+
+// ── DASHBOARD ────────────────────────────────────────────────
+function renderDash(){
+  const vente=sheetData.filter(r=>r['Statut']==='En vente').length;
+  const vendu=sheetData.filter(r=>r['Statut']==='Vendue').length;
+  const resv=sheetData.filter(r=>r['Statut']==='Réservé').length;
+  const total=sheetData.length;
+  const valeur=sheetData.filter(r=>r['Statut']==='En vente').reduce((s,r)=>s+(Number(r['Prix vente (€)'])||0),0);
+  const achat=sheetData.filter(r=>r['Statut']==='En vente').reduce((s,r)=>s+(Number(r['Prix achat (€)'])||0),0);
+  const marge=valeur-achat;
+
+  document.getElementById('k-vente').textContent=vente;
+  document.getElementById('k-vendu').textContent=vendu;
+  document.getElementById('k-resv').textContent=resv;
+  document.getElementById('k-total').textContent=total;
+  document.getElementById('k-valeur').textContent=valeur.toFixed(0)+' €';
+  document.getElementById('k-marge').textContent=marge>0?marge.toFixed(0)+' €':'—';
+  document.getElementById('s-vente').textContent=vente;
+  document.getElementById('s-vendu').textContent=vendu;
+  document.getElementById('s-resv').textContent=resv;
+
+  const recents=[...sheetData].reverse().slice(0,5);
+  document.getElementById('dash-recents').innerHTML=recents.map(row=>{
+    const statut=String(row['Statut']||'En vente');
+    const cls=statut==='En vente'?'sale':statut==='Vendue'?'sold':'resv';
+    const ref=String(row['Réf. LSMX']||'');
+    const prix=row['Prix vente (€)']?Number(row['Prix vente (€)']).toFixed(0)+' €':'—';
+    return `<div class="pc ${cls}">
+      ${ref?`<div class="pc-ref">${ref}</div>`:''}
+      <div class="pc-top"><div class="pc-name" style="flex:1">${row['Produit / Pièce']||''}</div><div class="badge ${cls}">${statut}</div></div>
+      <div class="pc-prix">${prix}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── FORM ────────────────────────────────────────────────────
+function updateSousCat(){
+  const cat=document.getElementById('f-categorie').value;
+  const sel=document.getElementById('f-souscat');
+  sel.innerHTML='<option value="">— Choisir —</option>';
+  if(cat && CATS[cat]){
+    Object.keys(CATS[cat].subs).forEach(sc=>sel.innerHTML+=`<option>${sc}</option>`);
+  }
+}
+
+// ── PHOTOS ───────────────────────────────────────────────────
+function handlePhotos(input){
+  Array.from(input.files).forEach(file=>{
+    if(photos.length>=10)return;
+    const reader=new FileReader();
+    reader.onload=e=>{ photos.push({data:e.target.result,file}); renderPhotos(); };
+    reader.readAsDataURL(file);
+  });
+}
+function renderPhotos(){
+  document.getElementById('photo-grid').innerHTML=photos.map((p,i)=>`<div class="photo-thumb"><img src="${p.data}"><button class="photo-del" onclick="removePhoto(${i})">×</button></div>`).join('');
+  document.getElementById('photo-zone').style.display=photos.length>=10?'none':'flex';
+}
+function removePhoto(i){ photos.splice(i,1); renderPhotos(); }
+
+// ── SOUMETTRE ────────────────────────────────────────────────
+async function soumettre(){
+  const produit=document.getElementById('f-produit').value.trim();
+  const vente=document.getElementById('f-vente').value;
+  if(!produit){ toast('❌ Nom du produit obligatoire','err'); return; }
+  if(!vente){ toast('❌ Prix de vente obligatoire','err'); return; }
+
+  const btn=document.getElementById('btn-submit');
+  btn.textContent='⏳ Publication...'; btn.disabled=true;
+
+  try{
+    const d={
+      produit, vente,
+      categorie:  document.getElementById('f-categorie').value,
+      sousCat:    document.getElementById('f-souscat').value,
+      marque:     document.getElementById('f-marque').value,
+      modele:     document.getElementById('f-modele').value,
+      anneeDeb:   document.getElementById('f-annee-deb').value,
+      anneeFin:   document.getElementById('f-annee-fin').value,
+      etat:       document.getElementById('f-etat').value,
+      fonct:      document.getElementById('f-fonct').value,
+      poids:      document.getElementById('f-poids').value,
+      quantite:   document.getElementById('f-quantite').value||1,
+      achat:      document.getElementById('f-achat').value,
+      empl:       document.getElementById('f-empl').value,
+      note:       document.getElementById('f-note').value,
+      origine:    document.getElementById('f-origine').value,
+      marqueP:    document.getElementById('f-marque-p').value,
+      couleur:    document.getElementById('f-couleur').value,
+      serie:      document.getElementById('f-serie').value,
+      statut:     document.getElementById('f-statut').value,
+      desc:       document.getElementById('f-desc').value,
+      ref:        nextRef,
+    };
+
+    const annee=buildAnnee(d.anneeDeb,d.anneeFin);
+    const poidsNum=parseFloat(d.poids)||0;
+    const colis=poidsNum<=5?'Petit colis':poidsNum<=15?'Moyen colis':'Grand colis';
+    const poidsStr=poidsNum>0?`${poidsNum} kg — ${colis}`:'';
+    const dims=poidsNum<=5?{length:'30',width:'20',height:'15'}:poidsNum<=15?{length:'50',width:'40',height:'30'}:{length:'80',width:'60',height:'50'};
+    const status=d.statut==='En vente'?'publish':d.statut==='Réservé'?'draft':'publish';
+
+    // Catégories avec vrais IDs
+    const catObj = CATS[d.categorie];
+    const cats = [{id:36}]; // Pièces d'occasion
+    if(catObj){ cats.push({id:catObj.id}); }
+    if(d.sousCat && catObj && catObj.subs[d.sousCat]){ cats.push({id:catObj.subs[d.sousCat]}); }
+
+// Générer la liste des années pour la description
+let anneesList = '';
+if(annee && annee.includes('-')){
+  const parts = annee.split('-');
+  const debut = parseInt(parts[0]);
+  const fin = parseInt(parts[1]);
+  if(!isNaN(debut) && !isNaN(fin)){
+    const years = [];
+    for(let y = debut; y <= fin; y++) years.push(String(y));
+    anneesList = years.join(', ');
+  }
+} else {
+  anneesList = annee;
+}
+
+    // Réécriture IA de la description, méta description et titre SEO
+    toast('✍️ Réécriture IA en cours...','info');
+    let descFinale = d.desc || '';
+    let metaFinale = buildMeta(d, annee);
+    let titreFinale = `${d.sousCat||d.produit} ${d.marque} ${d.modele} ${annee} — Occasion`.trim();
+    try {
+      const iaResp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: `Tu es un expert SEO et rédaction pour un site de vente de pièces moto occasion français.
+
+Pièce :
+- Nom : ${d.produit}
+- Marque : ${d.marque}
+- Modèle : ${d.modele}
+- Année : ${annee}
+- Catégorie : ${d.categorie}
+- Sous-catégorie : ${d.sousCat}
+- État : ${d.etat}
+- Fonctionnement : ${d.fonct}
+- Description brute : ${d.desc}
+
+- Années compatibles : ${anneesList ? `${annee} (soit : ${anneesList})` : annee}
+
+Génère UNIQUEMENT un JSON avec trois champs :
+1. "titre" : un titre SEO optimisé court et percutant (max 60 caractères) qui inclut le type de pièce, la marque, le modèle et l'année. Exemple : "Collecteur KTM 125 SX 2003-2010 — Pièce occasion"
+2. "description" : une description produit de 2-3 phrases professionnelles. Inclus obligatoirement une ligne "Compatible avec les années : ${anneesList}" à la fin. Exemple : "Tés de fourche pour Honda CR 80 de 2001, modèle non d'origine. Ensemble en très bon état avec seulement deux marques présentes sur le té inférieur. Idéal pour remplacement ou remise en état de la partie-cycle. Compatible avec les années : 2001."
+3. "meta" : une méta description de MAXIMUM 155 caractères claire et rassurante.
+
+Réponds UNIQUEMENT avec le JSON, sans texte avant ou après.`
+          }]
+        })
+      });
+      const iaJson = await iaResp.json();
+      const iaText = iaJson.content[0].text.trim();
+      const parsed = JSON.parse(iaText);
+      if (parsed.description) descFinale = parsed.description;
+      if (parsed.meta) metaFinale = parsed.meta.substring(0, 160);
+      if (parsed.titre) titreFinale = parsed.titre;
+    } catch(e) {
+      console.warn('IA failed:', e);
+    }
+
+    // Chercher produits liés (même marque, même catégorie)
+    let upsellIds = [];
+    let crossSellIds = [];
+    try {
+      const rLies = await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products?per_page=6&status=publish&search=${encodeURIComponent(d.marque)}`),{
+        headers:{Authorization:wooAuth()}
+      });
+      const lies = await rLies.json();
+      const autresProduits = lies.filter(p => p.name !== d.produit && p.id);
+      upsellIds = autresProduits.slice(0,2).map(p=>p.id);
+      crossSellIds = autresProduits.slice(2,4).map(p=>p.id);
+    } catch(e) { console.warn('Produits liés failed:', e); }
+
+    const payload={
+      name: d.produit,
+      type:'simple', status, catalog_visibility:'visible',
+      sku: d.ref,
+      description:`<p>${descFinale}</p>`,
+      regular_price:String(d.vente),
+      weight:String(poidsNum||''), dimensions:dims,
+      manage_stock:true, stock_quantity:parseInt(d.quantite)||1,
+      stock_status:d.statut==='Vendue'?'outofstock':'instock',
+      upsell_ids: upsellIds,
+      cross_sell_ids: crossSellIds,
+      categories:cats,
+      attributes:buildAttrs(d,annee),
+      meta_data:[
+        {key:'etat_du_produit',value:d.etat},
+        {key:'_etat_du_produit',value:'field_69cb7bf00403c'},
+        {key:'caracteristiques_techniques',value:buildCaract(d,annee,poidsStr)},
+        {key:'_caracteristiques_techniques',value:'field_67a3426217c58'},
+        {key:'_seopress_titles_desc',value:metaFinale},
+        {key:'_seopress_titles_title',value:titreFinale},
+        {key:'_seopress_analysis_target_kw',value:[
+          `${d.sousCat} ${d.marque} ${d.modele}`.trim(),
+          `${d.sousCat} occasion`,
+          `${d.marque} ${d.modele} occasion`,
+          `pièce ${d.marque} occasion`,
+          `${d.marque} ${annee}`,
+          `${d.sousCat} moto cross`,
+          `${d.sousCat} ${d.marque}`,
+          `pièce moto occasion`,
+          `${d.modele} ${annee}`,
+          `${d.marque} pièce détachée`,
+          `${d.sousCat} pas cher`,
+          `moto cross occasion France`,
+          `${d.categorie} ${d.marque}`.trim(),
+        ].filter(v=>v.trim()).join(', ')},
+        {key:'_seopress_redirections_type',value:'301'},
+        {key:'_seopress_redirections_logged_status',value:'both'},
+        {key:'_seopress_robots_primary_cat',value:'none'},
+        // Champs supplémentaires pour sync Google Sheets
+        {key:'lsmx_sous_cat',     value:d.sousCat||''},
+        {key:'lsmx_origine',      value:d.origine||''},
+        {key:'lsmx_marque_piece', value:d.marqueP||''},
+        {key:'lsmx_couleur',      value:d.couleur||''},
+        {key:'lsmx_num_serie',    value:d.serie||''},
+        {key:'lsmx_prix_achat',   value:d.achat||''},
+        {key:'lsmx_emplacement',  value:d.empl||''},
+        {key:'lsmx_note',         value:d.note||''},
+      ]
+    };
+
+    // Créer produit WooCommerce
+    const r=await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products`),{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+      body:JSON.stringify(payload)
+    });
+    const json=await r.json();
+    if(!json.id)throw new Error(json.message||'Erreur création WooCommerce');
+    const wooId=json.id;
+
+    // Marque
+    const brandId=MARQUE_IDS[d.marque];
+    if(brandId){
+      await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${wooId}`),{
+        method:'PUT',
+        headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+        body:JSON.stringify({brands:[{id:brandId}]})
+      });
+    }
+
+    // Upload photos - méthode base64 compatible avec le proxy
+    if(photos.length>0){
+      toast('📸 Upload des photos...','info');
+      const imageIds=[];
+      for(const photo of photos){
+        try{
+          // Convertir base64 en binaire
+          const base64Data = photo.data.split(',')[1];
+          const mimeType = photo.data.split(';')[0].split(':')[1];
+          const byteStr = atob(base64Data);
+          const arr = new Uint8Array(byteStr.length);
+          for(let i=0;i<byteStr.length;i++) arr[i]=byteStr.charCodeAt(i);
+          const blob = new Blob([arr],{type:mimeType});
+
+          const form=new FormData();
+          form.append('file',blob,'photo_lsmx.jpg');
+          form.append('title',d.produit);
+
+          // Upload avec auth WordPress (mot de passe application)
+          const ir=await fetch(proxyUrl(`${WOO_URL}/wp-json/wp/v2/media`),{
+            method:'POST',
+            headers:{
+              Authorization:wpAuth(),
+              'Content-Disposition':'attachment; filename="photo_lsmx.jpg"',
+              'Content-Type':'image/jpeg'
+            },
+            body:blob
+          });
+          const irText=await ir.text();
+          console.log('Photo status:',ir.status,'response:',irText.substring(0,100));
+          try{
+            const ij=JSON.parse(irText);
+            if(ij.id)imageIds.push({id:ij.id});
+          }catch(e){ console.warn('Photo parse error',e); }
+        }catch(e){ console.warn('Photo failed',e); toast('Photo: '+e.message,'err'); }
+      }
+      if(imageIds.length){
+        await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${wooId}`),{
+          method:'PUT',
+          headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+          body:JSON.stringify({images:imageIds})
+        });
+      }
+    }
+
+    toast(`✅ "${d.produit}" publié ! (Réf: ${d.ref})`,'ok');
+    resetForm();
+    setTimeout(()=>{ loadAll(); calculerProchainRef(); },2000);
+
+  }catch(e){ toast('❌ '+e.message,'err'); }
+  finally{ btn.textContent='🚀 Publier sur le site'; btn.disabled=false; }
+}
+
+// ── HELPERS ──────────────────────────────────────────────────
+function buildAnnee(deb,fin){
+  const d=String(deb||'').replace('.0','').trim();
+  const f=String(fin||'').replace('.0','').trim();
+  if(d&&f&&d===f)return d; if(d&&f)return`${d}-${f}`; return d||f||'';
+}
+
+function buildCaract(d,annee,poidsStr){
+  const mod=[d.marque,d.modele,annee].filter(Boolean).join(' ');
+  const orig=d.origine==='OUI'?"Pièce d'origine":'Pièce adaptable';
+  const lines=[
+    `<strong>Type de pièce :</strong> ${d.sousCat||''}`,
+    `<strong>Marque :</strong> ${d.marque||''}`,
+    `<strong>Modèle compatible :</strong> ${mod}`,
+  ];
+  if(annee)lines.push(`<strong>Année :</strong> ${annee}`);
+  lines.push(`<strong>Catégorie principale :</strong> ${d.categorie||''}`);
+  lines.push(`<strong>Origine :</strong> ${orig}`);
+  if(d.marqueP&&d.marqueP!='/')lines.push(`<strong>Marque pièce :</strong> ${d.marqueP}`);
+  lines.push(`<strong>Condition :</strong> Occasion`);
+  lines.push(`<strong>État :</strong> ${d.etat}`);
+  lines.push(`<strong>Fonctionnement :</strong> ${d.fonct}`);
+  if(d.couleur&&d.couleur!='Aucune')lines.push(`<strong>Couleur :</strong> ${d.couleur}`);
+  if(poidsStr)lines.push(`<strong>Poids :</strong> ${poidsStr}`);
+  if(d.serie&&d.serie!='/')lines.push(`<strong>N° série pièce :</strong> ${d.serie}`);
+  return lines.join('\n');
+}
+
+function buildMeta(d,annee){
+  const souscat=(d.sousCat||'').toLowerCase();
+  const marque=d.marque||'';
+  const modele=d.modele||'';
+  const etat=(d.etat||'bon état').toLowerCase();
+  const moto=/EXC|WR|WRF|KDX|TDR/i.test(modele)?'enduro':'cross';
+  const anneeStr=annee?` ${annee}`:'';
+  // Meta cohérente — pas de contradiction état/condition
+  return `Pièce occasion : ${souscat} ${marque} ${modele}${anneeStr}. État ${etat}, fonctionnelle. Pièce moto ${moto} testée. Expédition rapide depuis la France.`.substring(0,160);
+}
+
+function buildAttrs(d,annee){
+  const attrs=[];
+  if(d.marque)attrs.push({
+    id:4, name:'Marques', slug:'pa_marques',
+    visible:true, variation:false, options:[d.marque]
+  });
+  if(d.modele)attrs.push({
+    id:2, name:'Modèles', slug:'pa_modeles',
+    visible:true, variation:false, options:[d.modele]
+  });
+  if(annee){
+    // Générer toutes les années de la plage
+    let anneeOptions = [];
+    if(annee.includes('-')){
+      const parts = annee.split('-');
+      const debut = parseInt(parts[0]);
+      const fin = parseInt(parts[1]);
+      if(!isNaN(debut) && !isNaN(fin)){
+        for(let y = debut; y <= fin; y++) anneeOptions.push(String(y));
+      } else {
+        anneeOptions = [annee];
+      }
+    } else {
+      anneeOptions = [annee];
+    }
+    attrs.push({
+      id:3, name:'Année', slug:'pa_annee',
+      visible:true, variation:false, options:anneeOptions
+    });
+  }
+  return attrs;
+}
+
+function resetForm(){
+  document.querySelectorAll('#pg-add .finp').forEach(el=>el.value='');
+  document.getElementById('f-etat').value='Trés Bon';
+  document.getElementById('f-fonct').value='Fonctionnelle';
+  document.getElementById('f-origine').value='OUI';
+  document.getElementById('f-couleur').value='Aucune';
+  document.getElementById('f-statut').value='En vente';
+  document.getElementById('f-quantite').value='1';
+  document.getElementById('f-souscat').innerHTML='<option value="">— Catégorie d\'abord —</option>';
+  photos=[];
+  document.getElementById('photo-grid').innerHTML='';
+  document.getElementById('photo-zone').style.display='flex';
+  document.getElementById('photo-input').value='';
+  // Recalculer la prochaine ref
+  calculerProchainRef();
+}
+
+// ── MODIFICATION D'UNE PIÈCE ─────────────────────────────────
+let modifRef = '';
+let modifWooId = null;
+let modifExistingPhotos = []; // photos existantes {id, url}
+let modifNewPhotos = [];      // nouvelles photos à uploader
+
+async function ouvrirModif(ref) {
+  modifRef = ref;
+  modifWooId = null;
+  modifExistingPhotos = [];
+  modifNewPhotos = [];
+
+  toast('⏳ Chargement...', 'info');
+
+  try {
+    const r = await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products?sku=${encodeURIComponent(ref)}&_fields=id,name,images,attributes,categories,meta_data,regular_price,weight,stock_quantity,status,stock_status,brands,description`), {
+      headers: { Authorization: wooAuth() }
+    });
+    const products = await r.json();
+
+    if(products.length) {
+      const p = products[0];
+      modifWooId = p.id;
+
+      const attr = (n) => {
+        const a = (p.attributes||[]).find(a=>a.name.toLowerCase()===n.toLowerCase());
+        return a ? (a.options||[])[0] || '' : '';
+      };
+      const meta = (k) => {
+        const m = (p.meta_data||[]).find(m=>m.key===k);
+        return m ? String(m.value||'') : '';
+      };
+
+      const annee = attr('Année') || '';
+      let anneeDeb = '', anneeFin = '';
+      if(annee.includes('-')){ [anneeDeb,anneeFin]=annee.split('-').map(s=>s.trim()); }
+      else { anneeDeb=anneeFin=annee; }
+
+      // Marque depuis brands ou attribut
+      let marque = '';
+      if(p.brands && p.brands.length) marque = p.brands[0].name;
+      else if(p._embedded && p._embedded['wp:term']) {
+        const brandTerm = p._embedded['wp:term'].flat().find(t=>t.taxonomy==='pwb-brand');
+        if(brandTerm) marque = brandTerm.name;
+      }
+      if(!marque) marque = attr('Marques') || attr('Marque') || meta('marque');
+
+      const statut = p.stock_status==='outofstock'?'Vendue':p.status==='draft'?'Réservé':'En vente';
+
+      document.getElementById('m-produit').value  = p.name || '';
+      document.getElementById('m-vente').value    = p.regular_price || '';
+      document.getElementById('m-achat').value    = meta('lsmx_prix_achat');
+      document.getElementById('m-etat').value     = meta('etat_du_produit') || 'Trés Bon';
+      document.getElementById('m-fonct').value    = 'Fonctionnelle';
+      document.getElementById('m-statut').value   = statut;
+      document.getElementById('m-empl').value     = meta('lsmx_emplacement');
+      document.getElementById('m-desc').value     = (p.description||'').replace(/<[^>]*>/g,'').trim();
+      document.getElementById('m-marque').value   = marque;
+      document.getElementById('m-modele').value   = attr('Modèles') || attr('Modele');
+      document.getElementById('m-poids').value    = p.weight || '';
+      document.getElementById('m-quantite').value = p.stock_quantity || 1;
+      document.getElementById('m-origine').value  = meta('lsmx_origine') || 'OUI';
+      document.getElementById('m-marque-p').value = meta('lsmx_marque_piece');
+      document.getElementById('m-couleur').value  = meta('lsmx_couleur') || 'Aucune';
+      document.getElementById('m-serie').value    = meta('lsmx_num_serie');
+      document.getElementById('m-note').value     = meta('lsmx_note');
+      document.getElementById('m-annee-deb').value = anneeDeb;
+      document.getElementById('m-annee-fin').value = anneeFin;
+
+      const catIds = {
+        278:'Pièces moteur', 39:'Transmission', 271:'Partie cycle', 38:'Suspension',
+        273:'Freinage', 43:'Roues', 274:'Électricité', 494:'Commandes / Poste de pilotage',
+        280:'Carénages', 277:'Échappement', 452:'Échappement', 444:'Admission / Carburation',
+        458:'Partie cycle', 464:'Suspension', 430:'Pièces moteur', 481:'Transmission',
+        469:'Freinage', 487:'Roues', 475:'Électricité', 503:'Carénages'
+      };
+      const catPrinc = (p.categories||[]).find(c=>catIds[c.id]);
+      const cat = catPrinc ? catIds[catPrinc.id] : '';
+      const sousCat = meta('lsmx_sous_cat');
+
+      document.getElementById('m-categorie').value = cat;
+      if(cat && CATS[cat]) {
+        const sel = document.getElementById('m-souscat');
+        sel.innerHTML = '<option value="">— Choisir —</option>';
+        Object.keys(CATS[cat].subs).forEach(sc => sel.innerHTML += `<option>${sc}</option>`);
+        setTimeout(()=>{ sel.value = sousCat; }, 150);
+      }
+
+      modifExistingPhotos = (p.images||[]).map(img=>({id:img.id, url:img.src}));
+      renderModifExistingPhotos();
+    }
+  } catch(e) {
+    toast('❌ Erreur: '+e.message, 'err');
+    return;
+  }
+
+  modifNewPhotos = [];
+  document.getElementById('m-photo-new').innerHTML = '';
+  document.getElementById('m-photo-input').value = '';
+  document.getElementById('modal-modif').classList.add('show');
+}
+
+
+function fermerModif() {
+  document.getElementById('modal-modif').classList.remove('show');
+  modifRef = ''; modifWooId = null;
+  modifExistingPhotos = []; modifNewPhotos = [];
+  document.getElementById('m-photo-existing').innerHTML = '';
+  document.getElementById('m-photo-new').innerHTML = '';
+}
+
+async function sauvegarderModif() {
+  const btn = document.getElementById('btn-modif');
+  btn.textContent = '⏳ Mise à jour...'; btn.disabled = true;
+  try {
+    const produit  = document.getElementById('m-produit').value.trim();
+    const vente    = document.getElementById('m-vente').value;
+    const achat    = document.getElementById('m-achat').value;
+    const etat     = document.getElementById('m-etat').value;
+    const fonct    = document.getElementById('m-fonct').value;
+    const statut   = document.getElementById('m-statut').value;
+    const empl     = document.getElementById('m-empl').value;
+    const desc     = document.getElementById('m-desc').value;
+    const marque   = document.getElementById('m-marque').value;
+    const modele   = document.getElementById('m-modele').value;
+    const anneeDeb = document.getElementById('m-annee-deb').value;
+    const anneeFin = document.getElementById('m-annee-fin').value;
+    const poids    = document.getElementById('m-poids').value;
+    const quantite = document.getElementById('m-quantite').value;
+    const origine  = document.getElementById('m-origine').value;
+    const marqueP  = document.getElementById('m-marque-p').value;
+    const couleur  = document.getElementById('m-couleur').value;
+    const serie    = document.getElementById('m-serie').value;
+    const note     = document.getElementById('m-note').value;
+    const categorie = document.getElementById('m-categorie').value;
+    const sousCat  = document.getElementById('m-souscat').value;
+
+    const annee = buildAnnee(anneeDeb, anneeFin);
+    const poidsNum = parseFloat(poids) || 0;
+    const colis = poidsNum <= 5 ? 'Petit colis' : poidsNum <= 15 ? 'Moyen colis' : 'Grand colis';
+    const poidsStr = poidsNum > 0 ? `${poidsNum} kg — ${colis}` : '';
+
+    // Construire catégories
+    const catObj = CATS[categorie];
+    const cats = [{id:36}];
+    if(catObj) cats.push({id:catObj.id});
+    if(sousCat && catObj && catObj.subs[sousCat]) cats.push({id:catObj.subs[sousCat]});
+
+    if(modifWooId) {
+      const status = statut==='En vente'?'publish':statut==='Réservé'?'draft':'publish';
+
+      // Générer années
+      let anneeOptions = [];
+      if(annee && annee.includes('-')){
+        const parts = annee.split('-');
+        const debut = parseInt(parts[0]);
+        const fin = parseInt(parts[1]);
+        if(!isNaN(debut) && !isNaN(fin)){
+          for(let y=debut; y<=fin; y++) anneeOptions.push(String(y));
+        }
+      } else if(annee) { anneeOptions = [annee]; }
+
+      const attrs = [];
+      if(marque) attrs.push({id:4,name:'Marques',slug:'pa_marques',visible:true,variation:false,options:[marque]});
+      if(modele) attrs.push({id:2,name:'Modèles',slug:'pa_modeles',visible:true,variation:false,options:[modele]});
+      if(anneeOptions.length) attrs.push({id:3,name:'Année',slug:'pa_annee',visible:true,variation:false,options:anneeOptions});
+
+      await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${modifWooId}`), {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json', Authorization:wooAuth()},
+        body: JSON.stringify({
+          name: produit,
+          regular_price: String(vente),
+          status,
+          stock_status: statut==='Vendue'?'outofstock':'instock',
+          weight: String(poidsNum||''),
+          stock_quantity: parseInt(quantite)||1,
+          categories: cats,
+          attributes: attrs,
+          meta_data: [
+            {key:'etat_du_produit', value:etat},
+            {key:'_etat_du_produit', value:'field_69cb7bf00403c'},
+            {key:'caracteristiques_techniques', value:buildCaract({produit,sousCat,marque,modele,anneeDeb,anneeFin,categorie,origine,marqueP,etat,fonct,couleur,serie,poids:poidsStr},annee,poidsStr)},
+            {key:'_caracteristiques_techniques', value:'field_67a3426217c58'},
+            {key:'lsmx_sous_cat', value:sousCat},
+            {key:'lsmx_origine', value:origine},
+            {key:'lsmx_marque_piece', value:marqueP},
+            {key:'lsmx_couleur', value:couleur},
+            {key:'lsmx_num_serie', value:serie},
+            {key:'lsmx_prix_achat', value:achat},
+            {key:'lsmx_emplacement', value:empl},
+            {key:'lsmx_note', value:note},
+          ]
+        })
+      });
+
+      // Gérer les photos
+      if(modifNewPhotos.length > 0){
+        toast('📸 Upload des nouvelles photos...','info');
+        const newImageIds = [];
+        for(const photo of modifNewPhotos){
+          try{
+            const base64Data = photo.data.split(',')[1];
+            const mimeType = photo.data.split(';')[0].split(':')[1];
+            const byteStr = atob(base64Data);
+            const arr = new Uint8Array(byteStr.length);
+            for(let i=0;i<byteStr.length;i++) arr[i]=byteStr.charCodeAt(i);
+            const blob = new Blob([arr],{type:mimeType});
+            const ir = await fetch(proxyUrl(`${WOO_URL}/wp-json/wp/v2/media`),{
+              method:'POST',
+              headers:{Authorization:wpAuth(),'Content-Disposition':'attachment; filename="photo_lsmx.jpg"','Content-Type':'image/jpeg'},
+              body:blob
+            });
+            const ij = await ir.json();
+            if(ij.id) newImageIds.push({id:ij.id});
+          }catch(e){ console.warn('Photo upload failed',e); }
+        }
+        // Combiner photos existantes + nouvelles
+        const allImages = [
+          ...modifExistingPhotos.map(p => ({id:p.id})),
+          ...newImageIds
+        ];
+        await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${modifWooId}`),{
+          method:'PUT',
+          headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+          body:JSON.stringify({images:allImages})
+        });
+      } else if(modifExistingPhotos.length >= 0){
+        // Mettre à jour les photos (si certaines ont été supprimées)
+        const allImages = modifExistingPhotos.map(p => ({id:p.id}));
+        await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${modifWooId}`),{
+          method:'PUT',
+          headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+          body:JSON.stringify({images:allImages})
+        });
+      }
+      if(brandId) await fetch(proxyUrl(`${WOO_URL}/wp-json/wc/v3/products/${modifWooId}`), {
+        method:'PUT',
+        headers:{'Content-Type':'application/json',Authorization:wooAuth()},
+        body:JSON.stringify({brands:[{id:brandId}]})
+      });
+    }
+
+    toast(`✅ "${produit}" mis à jour !`, 'ok');
+    fermerModif();
+    setTimeout(loadAll, 2000);
+  } catch(e) {
+    toast('❌ Erreur : '+e.message, 'err');
+  } finally {
+    btn.textContent='💾 Mettre à jour'; btn.disabled=false;
+  }
+}
+
+function updateModifSousCat(){
+  const cat = document.getElementById('m-categorie').value;
+  const sel = document.getElementById('m-souscat');
+  sel.innerHTML = '<option value="">— Choisir —</option>';
+  if(cat && CATS[cat]) Object.keys(CATS[cat].subs).forEach(sc => sel.innerHTML += `<option>${sc}</option>`);
+}
+
+function renderModifExistingPhotos(){
+  const grid = document.getElementById('m-photo-existing');
+  grid.innerHTML = modifExistingPhotos.map((p,i) => `
+    <div class="photo-thumb">
+      <img src="${p.url}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23333%22 width=%22100%22 height=%22100%22/></svg>'">
+      <button class="photo-del" onclick="supprimerPhotoExistante(${i})">×</button>
+    </div>`).join('');
+}
+
+function supprimerPhotoExistante(i){
+  modifExistingPhotos.splice(i, 1);
+  renderModifExistingPhotos();
+}
+
+function handleModifPhotos(input){
+  Array.from(input.files).forEach(file => {
+    const total = modifExistingPhotos.length + modifNewPhotos.length;
+    if(total >= 10) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      modifNewPhotos.push({data: e.target.result, file});
+      renderModifNewPhotos();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderModifNewPhotos(){
+  const grid = document.getElementById('m-photo-new');
+  grid.innerHTML = modifNewPhotos.map((p,i) => `
+    <div class="photo-thumb">
+      <img src="${p.data}">
+      <button class="photo-del" onclick="supprimerNouvellePhoto(${i})">×</button>
+    </div>`).join('');
+  const total = modifExistingPhotos.length + modifNewPhotos.length;
+  document.getElementById('m-photo-zone').style.display = total >= 10 ? 'none' : 'flex';
+}
+
+function supprimerNouvellePhoto(i){
+  modifNewPhotos.splice(i, 1);
+  renderModifNewPhotos();
+}
+</script>
+</body>
+</html>
