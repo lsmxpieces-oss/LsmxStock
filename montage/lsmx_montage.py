@@ -148,6 +148,57 @@ def caption_events(words):
     return ev
 
 
+# ---------------------------------------------------------------- effets
+HERE = os.path.dirname(os.path.abspath(__file__))
+EMOJI_FONT = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
+
+
+def norm(t):
+    return re.sub(r"[^\w€' -]", "", t.lower()).strip()
+
+
+def emoji_png(ch, folder, size=240):
+    from PIL import Image, ImageDraw, ImageFont
+    path = os.path.join(folder, f"emoji_{ord(ch[0]):x}.png")
+    if not os.path.exists(path):
+        font = ImageFont.truetype(EMOJI_FONT, 109)
+        im = Image.new("RGBA", (160, 160), (0, 0, 0, 0))
+        ImageDraw.Draw(im).text((80, 80), ch, font=font, embedded_color=True, anchor="mm")
+        im = im.crop(im.getbbox()).resize((size, size), Image.LANCZOS)
+        im.save(path)
+    return path
+
+
+def plan_effects(words, cut_times, hook, tmp, cfg_path):
+    cfg = json.load(open(cfg_path))
+    gap = cfg.get("ecart_min_secondes", 2.5)
+    sfx = lambda n: os.path.join(HERE, "sfx", n + ".wav") if n else None
+    fx = []
+    if hook:
+        fx.append({"t": 0.05, "son": sfx("whoosh"), "vol": 0.5})
+    start_after = 2.6 if hook else 0.4
+    last = -99.0
+    toks = [norm(w["w"]) for w in words]
+    for i, w in enumerate(words):
+        if w["s"] < start_after or w["s"] - last < gap:
+            continue
+        for r in cfg["regles"]:
+            hit = any((" ".join(toks[i:i + len(m.split())]) == m) for m in map(str.lower, r["mots"]))
+            if hit:
+                img = r.get("image")
+                img = os.path.join(HERE, img) if img else (emoji_png(r["emoji"], tmp) if r.get("emoji") else None)
+                fx.append({"t": w["s"], "son": sfx(r.get("son")), "img": img, "vol": 0.6})
+                last = w["s"]
+                break
+    cut_sound = cfg.get("son_coupes")
+    if cut_sound:
+        lastc = -99.0
+        for t in cut_times:
+            if t - lastc >= 4 and all(abs(t - e["t"]) > 1.0 for e in fx):
+                fx.append({"t": t, "son": sfx(cut_sound), "vol": 0.25}); lastc = t
+    return sorted(fx, key=lambda e: e["t"])
+
+
 # ---------------------------------------------------------------- titres
 def build_ass(dur, hook, sub, cta, captions, end_start):
     pop = r"{\fscx40\fscy40\t(0,180,\fscx110\fscy110)\t(180,300,\fscx100\fscy100)}"
@@ -185,7 +236,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 
 # ---------------------------------------------------------------- rendu final
-def render(src, out, ass, dur, end_start, music, hold):
+def render(src, out, ass, dur, end_start, music, hold, fx=()):
     d = dur
     v = "[0:v]"
     if hold:  # fige la dernière image pour la carte de fin
@@ -197,19 +248,41 @@ def render(src, out, ass, dur, end_start, music, hold):
         "unsharp=5:5:0.8:3:3:0.0,vignette=PI/5,"
         "fade=in:st=0:d=0.25:color=white,"
         f"drawbox=x=0:y=0:w=iw:h=ih:color=black@0.55:t=fill:enable='gte(t,{end_start})',"
-        f"drawbox=x=0:y=0:w='iw*t/{d}':h=14:color=0xe8000d:t=fill,"
-        f"ass='{ass}'[v]"
+        f"ass='{ass}'[v0]"
     )
+    extra, vchain, sfx_labels, last, idx = [], [], [], "v0", 1 + (1 if music else 0)
+    for n, e in enumerate(fx):
+        T = e["t"]
+        if e.get("img"):
+            extra += ["-loop", "1", "-t", f"{d:.3f}", "-i", e["img"]]
+            vchain.append(
+                f"[{idx}:v]format=rgba,fade=in:st={T:.2f}:d=0.12:alpha=1,"
+                f"fade=out:st={T + 1.0:.2f}:d=0.2:alpha=1[i{n}];"
+                f"[{last}][i{n}]overlay=x=(W-w)/2:y='430-90*max(0,1-(t-{T:.2f})*7)':"
+                f"enable='between(t,{T:.2f},{T + 1.25:.2f})'[w{n}]")
+            last, idx = f"w{n}", idx + 1
+        if e.get("son"):
+            extra += ["-i", e["son"]]
+            ms = int(T * 1000)
+            vchain.append(f"[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,"
+                          f"volume={e.get('vol', 0.6)},adelay={ms}|{ms}[s{n}]")
+            sfx_labels.append(f"[s{n}]"); idx += 1
+    v += "".join(";" + c for c in vchain) + f";[{last}]null[v]"
     a0 = f"[0:a]apad=pad_dur={hold}" if hold else "[0:a]anull"
     cmd = ["ffmpeg", "-y", "-v", "error", "-i", src]
     if music:
         cmd += ["-stream_loop", "-1", "-i", music]
         aud = (f"{a0},asplit[o][sc];[1:a]aresample=48000,volume=0.30[m];"
                "[m][sc]sidechaincompress=threshold=0.03:ratio=10:attack=20:release=400[md];"
-               "[o][md]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5[a]")
+               "[o][md]amix=inputs=2:duration=first:normalize=0[mix]")
     else:
-        aud = f"{a0},loudnorm=I=-14:TP=-1.5[a]"
-    cmd += ["-filter_complex", v + ";" + aud, "-map", "[v]", "-map", "[a]", "-t", f"{d:.3f}",
+        aud = f"{a0}[mix]"
+    if sfx_labels:
+        aud += f";[mix]{''.join(sfx_labels)}amix=inputs={1 + len(sfx_labels)}:duration=first:normalize=0[mx2]"
+        aud += ";[mx2]loudnorm=I=-14:TP=-1.5[a]"
+    else:
+        aud += ";[mix]loudnorm=I=-14:TP=-1.5[a]"
+    cmd += extra + ["-filter_complex", v + ";" + aud, "-map", "[v]", "-map", "[a]", "-t", f"{d:.3f}",
             "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", out]
     run(cmd)
@@ -225,13 +298,17 @@ def main():
     p.add_argument("--voix", action="store_true", help="sous-titres + coupe des silences")
     p.add_argument("--garder-silences", action="store_true")
     p.add_argument("--modele", default="small", help="modèle Whisper: small / medium")
+    p.add_argument("--effets", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "effets.json"))
+    p.add_argument("--sans-effets", action="store_true")
     a = p.parse_args()
+    if not os.path.exists(os.path.join(HERE, "sfx", "whoosh.wav")):
+        subprocess.run(["python3", os.path.join(HERE, "generer_sfx.py")], check=True)
 
     tmp = tempfile.mkdtemp(prefix="lsmx_")
     prep = os.path.join(tmp, "prep.mkv")
     print("1/4 Préparation des rushs…"); prepare(a.rushs, prep)
 
-    captions, src, hold = [], prep, 0.0
+    captions, src, hold, fx, cut_times = [], prep, 0.0, [], []
     if a.voix:
         print("2/4 Transcription de la voix…")
         words = transcribe(prep, a.modele)
@@ -242,13 +319,24 @@ def main():
             rng = keep_ranges(words, duration(prep))
             src = os.path.join(tmp, "cut.mkv"); cut(prep, src, rng)
             words = remap(words, rng)
+            acc = 0.0
+            for a0, b0 in rng:
+                cut_times.append(acc); acc += b0 - a0
+            cut_times = cut_times[1:]
         captions = caption_events(words)
         hold = END_DUR  # carte de fin après la dernière phrase
+        if not a.sans_effets:
+            fx = plan_effects(words, cut_times, a.hook, tmp, a.effets)
+            for e in fx:
+                print(f"    effet {e['t']:6.2f}s  {os.path.basename(e.get('son') or '-'):11s} "
+                      f"{'image' if e.get('img') else ''}")
+    elif a.hook and not a.sans_effets:
+        fx = [{"t": 0.05, "son": os.path.join(HERE, "sfx", "whoosh.wav"), "vol": 0.5}]
     dur = duration(src) + hold
     end_start = dur - END_DUR if hold else max(dur - 2.8, 3.0)
     ass = os.path.join(tmp, "titres.ass")
     open(ass, "w").write(build_ass(dur, a.hook, a.sub, a.cta, captions, end_start))
-    print("4/4 Rendu final…"); render(src, a.out, ass, dur, end_start, a.music, hold)
+    print("4/4 Rendu final…"); render(src, a.out, ass, dur, end_start, a.music, hold, fx)
     print(f"OK -> {a.out}  ({dur:.1f} s)  fichiers de travail : {tmp}")
 
 

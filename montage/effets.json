@@ -1,0 +1,20 @@
+{
+  "_aide": "Quand un de ces mots est prononcé, le son (dossier sfx/) et/ou l'emoji ou l'image (dossier images/) apparaissent. Ajoute tes propres règles. 'image' prend le dessus sur 'emoji'.",
+  "ecart_min_secondes": 2.5,
+  "son_coupes": "swipe",
+  "regles": [
+    {"mots": ["euros", "euro", "€", "prix", "pas cher", "gratuit", "promo", "réduction"], "son": "cash", "emoji": "💰"},
+    {"mots": ["incroyable", "ouf", "fou", "dingue", "jamais vu", "énorme", "pépite", "trouvaille", "choqué"], "son": "boom", "emoji": "🤯"},
+    {"mots": ["stock", "lot", "pièces", "pièce", "carton", "colis"], "son": "pop", "emoji": "📦"},
+    {"mots": ["moto", "motos", "cross", "motocross"], "son": "whoosh", "emoji": "🏍️"},
+    {"mots": ["site", "lien", "commande", "commander", "disponible", "dispo"], "son": "ding", "emoji": "🛒"},
+    {"mots": ["feu", "chaud", "magnifique", "propre", "neuf", "neuve"], "son": "pop", "emoji": "🔥"},
+    {"mots": ["malheureusement", "cassé", "arnaque", "problème", "triste"], "son": "boom", "emoji": "😢"},
+    {"mots": ["ktm"], "son": "whoosh", "emoji": "🟠"},
+    {"mots": ["kawasaki", "kx"], "son": "whoosh", "emoji": "💚"},
+    {"mots": ["yamaha", "yz"], "son": "whoosh", "emoji": "💙"},
+    {"mots": ["honda", "cr"], "son": "whoosh", "emoji": "❤️"},
+    {"mots": ["suzuki", "rm"], "son": "whoosh", "emoji": "💛"},
+    {"mots": ["abonne", "abonnez", "abonnes", "like"], "son": "ding", "emoji": "👉"}
+  ]
+}

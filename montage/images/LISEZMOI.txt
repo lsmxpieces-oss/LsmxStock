@@ -1,0 +1,3 @@
+Mets ici tes propres images (PNG avec fond transparent de préférence : logo, photo de pièce, mème...).
+Puis dans effets.json, ajoute une règle, par exemple :
+  {"mots": ["ktm"], "son": "whoosh", "image": "images/logo_ktm.png"}
