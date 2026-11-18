@@ -75,7 +75,10 @@ def transcribe(path, model_size):
             t = w.word.strip()
             if not t:
                 continue
-            if words and (t[0] in "'’-" or words[-1]["w"].endswith(("'", "’"))):
+            if words and re.fullmatch(r"[?!.,;:…]+", t):
+                words[-1]["w"] += t if t not in "?!" else " " + t
+                continue
+            if words and (t[0] in "'’-." or words[-1]["w"].endswith(("'", "’"))):
                 words[-1]["w"] = (words[-1]["w"] + t).replace(" '", "'")
                 words[-1]["e"] = w.end
             else:
@@ -146,6 +149,87 @@ def caption_events(words):
             pop = r"{\fscx85\fscy85\t(0,90,\fscx100\fscy100)}" if j == 0 else ""
             ev.append((start, end, "Cap", pop + " ".join(parts)))
     return ev
+
+
+def apply_corrections(words, corr):
+    """Remplace des suites de mots mal comprises : {"on du nez": "venez"}."""
+    key = lambda w: re.sub(r"[^\w.'-]", "", w.lower())
+    for wrong, right in corr.items():
+        seq = wrong.lower().split(); n = len(seq); i = 0
+        while i + n <= len(words):
+            if [key(w["w"]) for w in words[i:i + n]] == [key(x) for x in seq]:
+                punct = re.search(r"[.,!?;:]*$", words[i + n - 1]["w"]).group()
+                words[i:i + n] = [{"w": right + punct, "s": words[i]["s"], "e": words[i + n - 1]["e"]}]
+            i += 1
+    return words
+
+
+def map_time(P, ranges):
+    acc = 0.0
+    for a, b in ranges:
+        if P <= b:
+            return acc + max(P - a, 0)
+        acc += b - a
+    return acc
+
+
+# ---------------------------------------------------------------- pause + souris
+def pause_assets(tmp):
+    from PIL import Image, ImageDraw
+    S = 4  # supersampling
+    def icon(kind):
+        im = Image.new("RGBA", (300 * S, 300 * S), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+        d.ellipse([0, 0, 300 * S - 1, 300 * S - 1], fill=(0, 0, 0, 150), outline=(255, 255, 255, 235), width=8 * S)
+        if kind == "pause":
+            for x in (100, 172):
+                d.rounded_rectangle([x * S, 85 * S, (x + 30) * S, 215 * S], radius=8 * S, fill="white")
+        else:
+            d.polygon([(115 * S, 80 * S), (115 * S, 220 * S), (225 * S, 150 * S)], fill="white")
+        return im.resize((300, 300), Image.LANCZOS)
+    def cursor(scale=1.0):
+        pts = [(0, 0), (0, 92), (24, 70), (42, 110), (58, 103), (40, 64), (72, 64)]
+        W = int(90 * S * scale); im = Image.new("RGBA", (W, int(125 * S * scale)), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im); k = S * scale * 1.05
+        poly = [(6 * S + x * k, 6 * S + y * k) for x, y in pts]
+        d.polygon(poly, fill="white", outline="black", width=int(6 * S * scale))
+        return im.resize((im.width // S, im.height // S), Image.LANCZOS)
+    paths = {}
+    for name, im in [("pause", icon("pause")), ("play", icon("play")),
+                     ("cur", cursor(1.5)), ("curc", cursor(1.3))]:
+        paths[name] = os.path.join(tmp, f"{name}.png"); im.save(paths[name])
+    return paths
+
+
+def insert_pause(src, out, P, D, tmp, Pa=None):
+    """Fige l'image à P pendant D s : icône pause, la souris arrive et clique, icône play.
+    La voix continue jusqu'à Pa (fin du mot en cours, ex. « pause »), puis silence."""
+    Pa = P if Pa is None else Pa
+    a = pause_assets(tmp)
+    cx, cy = 540, 860                        # centre de l'icône
+    t0, t1, tc = P + 0.15, P + 0.75, P + 0.85  # souris : départ, arrivée, clic
+    ease = f"(1-pow(1-min(1,max(0,(t-{t0})/{t1 - t0})),3))"
+    x = f"'{cx + 330}+({cx - 4}-{cx + 330})*{ease}'"
+    y = f"'{cy + 620}+({cy + 6}-{cy + 620})*{ease}'"
+    fc = (
+        f"[0:v]split[va][vb];"
+        f"[va]trim=0:{P},setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration={D},trim=0:{P + D},"
+        f"drawbox=x=0:y=0:w=iw:h=ih:color=black@0.30:t=fill:enable='gte(t,{P})'[f0];"
+        f"[1:v]format=rgba[ip];[2:v]format=rgba[iq];[3:v]format=rgba,split[ic][ic2];[4:v]format=rgba[id];"
+        f"[f0][ip]overlay=x={cx - 150}:y={cy - 150}:enable='between(t,{P + 0.03},{tc})'[f1];"
+        f"[f1][iq]overlay=x={cx - 150}:y={cy - 150}:enable='between(t,{tc},{P + D - 0.12})'[f2];"
+        f"[f2][ic]overlay=x={x}:y={y}:enable='between(t,{t0},{tc - 0.01})'[f3];"
+        f"[f3][id]overlay=x={cx - 1}:y={cy + 9}:enable='between(t,{tc},{tc + 0.12})'[f4];"
+        f"[f4][ic2]overlay=x={cx - 4}:y={cy + 6}:enable='between(t,{tc + 0.12},{P + D - 0.12})',trim=0:{P + D}[vf];"
+        f"[vb]trim=start={Pa},setpts=PTS-STARTPTS[vr];"
+        f"[0:a]asplit[aa][ab];[aa]atrim=0:{Pa},asetpts=PTS-STARTPTS,apad=pad_dur={P + D - Pa}[af];"
+        f"[ab]atrim=start={Pa},asetpts=PTS-STARTPTS[ar];"
+        f"[vf][af][vr][ar]concat=n=2:v=1:a=1[v][a]"
+    )
+    loop = lambda p: ["-loop", "1", "-framerate", "30", "-t", f"{P + D + 0.5:.2f}", "-i", p]
+    run(["ffmpeg", "-y", "-v", "error", "-i", src, *loop(a["pause"]), *loop(a["play"]),
+         *loop(a["cur"]), *loop(a["curc"]), "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "14", "-c:a", "pcm_s16le", out])
+    return tc
 
 
 # ---------------------------------------------------------------- effets
@@ -221,8 +305,8 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Hook,{FONT},96,&H00FFFFFF,&H00FFFFFF,{RED},{RED},1,0,0,0,100,100,0,-2,3,18,0,8,60,60,330,1
-Style: Sub,{FONT},58,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,5,3,8,60,60,500,1
+Style: Hook,{FONT},84,&H00FFFFFF,&H00FFFFFF,{RED},{RED},1,0,0,0,100,100,0,-2,3,18,0,8,60,60,330,1
+Style: Sub,{FONT},58,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,5,3,8,60,60,560,1
 Style: Cap,{FONT},88,&H00FFFFFF,&H00FFFFFF,&H00000000,&H90000000,1,0,0,0,100,100,0,0,1,8,4,2,70,70,560,1
 Style: End,{FONT},170,&H00FFFFFF,&H00FFFFFF,{RED},{RED},1,0,0,0,100,100,0,0,3,24,0,5,60,60,0,1
 Style: Site,{FONT},64,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,5,3,2,60,60,700,1
@@ -236,7 +320,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 
 # ---------------------------------------------------------------- rendu final
-def render(src, out, ass, dur, end_start, music, hold, fx=()):
+def render(src, out, ass, dur, end_start, music, hold, fx=(), music_start=0.0):
     d = dur
     v = "[0:v]"
     if hold:  # fige la dernière image pour la carte de fin
@@ -272,7 +356,9 @@ def render(src, out, ass, dur, end_start, music, hold, fx=()):
     cmd = ["ffmpeg", "-y", "-v", "error", "-i", src]
     if music:
         cmd += ["-stream_loop", "-1", "-i", music]
-        aud = (f"{a0},asplit[o][sc];[1:a]aresample=48000,volume=0.30[m];"
+        aud = (f"{a0},asplit[o][sc];"
+               f"[1:a]aresample=48000,aformat=channel_layouts=stereo,volume=0.30,"
+               f"adelay={int(music_start * 1000)}|{int(music_start * 1000)}[m];"
                "[m][sc]sidechaincompress=threshold=0.03:ratio=10:attack=20:release=400[md];"
                "[o][md]amix=inputs=2:duration=first:normalize=0[mix]")
     else:
@@ -300,6 +386,9 @@ def main():
     p.add_argument("--modele", default="small", help="modèle Whisper: small / medium")
     p.add_argument("--effets", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "effets.json"))
     p.add_argument("--sans-effets", action="store_true")
+    p.add_argument("--pause", type=float, help="seconde (dans le rush) où figer l'image avec pause + clic souris")
+    p.add_argument("--pause-duree", type=float, default=1.5)
+    p.add_argument("--corrections", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "corrections.json"))
     a = p.parse_args()
     if not os.path.exists(os.path.join(HERE, "sfx", "whoosh.wav")):
         subprocess.run(["python3", os.path.join(HERE, "generer_sfx.py")], check=True)
@@ -309,9 +398,12 @@ def main():
     print("1/4 Préparation des rushs…"); prepare(a.rushs, prep)
 
     captions, src, hold, fx, cut_times = [], prep, 0.0, [], []
+    rng, music_start, pause_fx = None, 0.0, []
     if a.voix:
         print("2/4 Transcription de la voix…")
         words = transcribe(prep, a.modele)
+        if os.path.exists(a.corrections):
+            words = apply_corrections(words, json.load(open(a.corrections)))
         json.dump(words, open(os.path.join(tmp, "mots.json"), "w"), ensure_ascii=False, indent=1)
         print("   ", " ".join(w["w"] for w in words)[:300], "…")
         if not a.garder_silences and words:
@@ -323,10 +415,33 @@ def main():
             for a0, b0 in rng:
                 cut_times.append(acc); acc += b0 - a0
             cut_times = cut_times[1:]
+    if a.pause is not None:
+        P = map_time(a.pause, rng) if rng else a.pause
+        D = a.pause_duree
+        Pa = P
+        if a.voix:  # laisse finir le mot prononcé juste au moment de la pause
+            for w in words:
+                if P - 0.1 <= w["s"] <= P + 0.6:
+                    Pa = max(Pa, w["e"] + 0.06)
+            Pa = min(Pa, P + D - 0.9)
+        print(f"   pause à {P:.2f}s pendant {D}s (voix jusqu'à {Pa:.2f}s)")
+        paused = os.path.join(tmp, "pause.mkv")
+        tc = insert_pause(src, paused, P, D, tmp, Pa); src = paused
+        sh = P + D - Pa
+        if a.voix:
+            words = [dict(w, s=w["s"] + sh, e=w["e"] + sh) if w["s"] >= Pa - 0.05 else w for w in words]
+        cut_times = [t + sh if t >= Pa else t for t in cut_times]
+        music_start = P + D
+        pause_fx = [{"t": tc, "son": os.path.join(HERE, "sfx", "clic.wav"), "vol": 0.9},
+                    {"t": P + D - 0.05, "son": os.path.join(HERE, "sfx", "whoosh.wav"), "vol": 0.45}]
+    if a.voix:
         captions = caption_events(words)
         hold = END_DUR  # carte de fin après la dernière phrase
         if not a.sans_effets:
             fx = plan_effects(words, cut_times, a.hook, tmp, a.effets)
+            if pause_fx:  # pas d'autre effet pendant la pause
+                fx = [e for e in fx if not (P - 0.3 <= e["t"] <= P + D + 0.6)] + pause_fx
+                fx.sort(key=lambda e: e["t"])
             for e in fx:
                 print(f"    effet {e['t']:6.2f}s  {os.path.basename(e.get('son') or '-'):11s} "
                       f"{'image' if e.get('img') else ''}")
@@ -336,7 +451,7 @@ def main():
     end_start = dur - END_DUR if hold else max(dur - 2.8, 3.0)
     ass = os.path.join(tmp, "titres.ass")
     open(ass, "w").write(build_ass(dur, a.hook, a.sub, a.cta, captions, end_start))
-    print("4/4 Rendu final…"); render(src, a.out, ass, dur, end_start, a.music, hold, fx)
+    print("4/4 Rendu final…"); render(src, a.out, ass, dur, end_start, a.music, hold, fx, music_start)
     print(f"OK -> {a.out}  ({dur:.1f} s)  fichiers de travail : {tmp}")
 
 
