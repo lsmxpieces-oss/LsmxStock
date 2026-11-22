@@ -519,7 +519,7 @@ function renderHome(){
   const weeks=[...Array(8)].map((_,w)=>{const os=ORDERS.filter(o=>{const a=(new Date()-o.date)/864e5;return a>=(7-w)*7&&a<(8-w)*7});return{w:os.filter(o=>o.src==='woo').reduce((a,o)=>a+o.tot,0)+(LIVE?0:400+w*60),e:os.filter(o=>o.src==='ebay').reduce((a,o)=>a+o.tot,0)+(LIVE?0:250+w*40)}});
   const max0=Math.max(1,...weeks.map(x=>x.w+x.e));
   const max=max0;
-  $('#chart').innerHTML=weeks.map((x,i)=>`<div class="b" title="${eur(x.w+x.e)}"><div class="stk" style="height:${(x.w+x.e)/max*100}%"><div class="col e" style="flex:${x.e}"></div><div class="col" style="flex:${x.w}"></div></div><span>S-${7-i}</span></div>`).join('');
+  $('#chart').innerHTML=weeks.map((x,i)=>`<div class="b" title="${eur(x.w+x.e)}"><div class="stk" style="height:${(x.w+x.e)/max*100}%">${x.e?`<div class="col e" style="flex:${x.e}"></div>`:''}<div class="col" style="flex:${x.w}"></div></div><span>S-${7-i}</span></div>`).join('');
   // alerts
   const al=[
     ['red','📦',`<b>${ORDERS.filter(o=>o.st==='payee').length} commandes payées</b> attendent d'être préparées`,'commandes'],
@@ -627,14 +627,20 @@ function parseReq(txt){
   const terms=PART_WORDS.filter(w=>s.includes(' '+w)||s.includes(w+'s ')||s.includes(w+' '));
   // garder les termes les plus longs (bras oscillant > bras)
   const t2=terms.filter(t=>!terms.some(o=>o!==t&&o.includes(t)));
-  return{token,year,brand,terms:t2};
+  const keys=modelKeys(txt);if(!token&&keys.length)token=keys[0].split(':').reverse().join('');
+  return{token,year,brand,terms:t2,keys};
 }
+const FAM='sxf|sx|excf|exc|xcf|xcw|xc|tpi|smr|mxc|yzf|yz|wrf|wr|crfr|crf|cr|kxf|kx|klx|rmz|rmx|rm|fc|tc|te|fe|mc|ec|ex|tx|ttr|drz|ltr|pw';
+const RE1=new RegExp('\\b(\\d{2,3})\\s*-?\\s*('+FAM+')\\b','g'),RE2=new RegExp('\\b('+FAM.replace('crfr|','')+')\\s*-?\\s*(\\d{2,3})\\s*-?\\s*(f|r|x|rx|fx)?\\b','g');
+function modelKeys(txt){const s=' '+norm(txt).replace(/sx-f/g,'sxf').replace(/exc-f/g,'excf').replace(/xc-f/g,'xcf').replace(/rm-z/g,'rmz')+' ';const k=new Set();let m;
+  RE1.lastIndex=0;while((m=RE1.exec(s)))k.add(m[1]+':'+m[2]);
+  RE2.lastIndex=0;while((m=RE2.exec(s)))k.add(m[2]+':'+m[1]+(m[3]&&!m[1].endsWith(m[3])?m[3]:''));
+  return[...k]}
+function keyMatch(a,b){const[na,la]=a.split(':'),[nb,lb]=b.split(':');return na===nb&&(la===lb||la.startsWith(lb)||lb.startsWith(la))}
 function partFits(p,r){
-  const hay=cmp(p.model+' '+p.name);
-  if(r.token){let tk=r.token;if(!hay.includes(tk)){ // tolérance : yz450f ↔ yz450, crf250r ↔ crf250
-      const base=tk.replace(/(f|r|x|rx|fx)$/,'');if(base.length<4||!hay.includes(base))return false}}
+  if(r.keys&&r.keys.length){p._k=p._k||modelKeys(p.model+' '+p.name);if(!r.keys.some(k=>p._k.some(q=>keyMatch(k,q))))return false}
   else if(r.brand){if(p.brand!==r.brand)return false}else return false;
-  if(r.brand&&p.brand&&p.brand!=='—'&&p.brand!==r.brand)return false;
+  if(r.brand&&p.brand&&p.brand!=='—'&&!p.brand.startsWith(r.brand.slice(0,4)))return false;
   return true;
 }
 function yearOk(p,y){if(!y)return true;const a=p.yFrom||p.year,b=p.yTo||p.year;if(!a)return true;return y>=a&&y<=b}
@@ -643,7 +649,7 @@ function matchReq(r){
   const model=PARTS.filter(p=>dispo.includes(p.st)&&partFits(p,r));
   const pool=model.filter(p=>yearOk(p,r.year));
   const other=model.filter(p=>!yearOk(p,r.year));
-  if(!r.token&&!r.brand)return{type:'flou',parts:[],other:[]};
+  if(!(r.keys&&r.keys.length)&&!r.brand)return{type:'flou',parts:[],other:[]};
   if(r.terms.length){
     const ex=pool.filter(p=>r.terms.some(t=>cmp(p.name+' '+p.cat+' '+(p.sub||'')).includes(cmp(t))));
     if(ex.length)return{type:'exact',parts:ex,other:pool.filter(p=>!ex.includes(p))};
