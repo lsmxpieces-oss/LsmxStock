@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LSMX Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0b14; --bg2:#17111f; --panel:#1e1628; --panel2:#261c33; --line:#33274a;
+  --txt:#f3ecf7; --mute:#a597b5; --orange:#ff7a1a; --amber:#ffb23f; --pink:#ff4f6d;
+  --green:#3ddc97; --blue:#4fa3ff; --violet:#a77bff; --ebay:#e53238; --woo:#9b5c8f;
+  --radius:14px; --side:228px;
+  --grad:linear-gradient(135deg,#ff7a1a 0%,#ff4f6d 55%,#a33bff 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Barlow',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:15px;
+  background-image:radial-gradient(1200px 500px at 85% -10%,rgba(255,122,26,.16),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(163,59,255,.14),transparent 60%);
+  background-attachment:fixed}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+.mono{font-family:'JetBrains Mono',monospace;font-size:.86em}
+
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;background:rgba(15,11,20,.85);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;padding:20px 14px;backdrop-filter:blur(8px)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 22px}
+.logo{font-family:'Bebas Neue';font-size:38px;line-height:.8;letter-spacing:1px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{display:block;font-size:10px;letter-spacing:3px;color:var(--mute);text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav button{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;color:var(--mute);font-weight:600;text-align:left;transition:.15s}
+.nav button:hover{background:var(--panel);color:var(--txt)}
+.nav button.on{background:var(--panel2);color:var(--txt);box-shadow:inset 3px 0 0 var(--orange)}
+.nav .ic{width:22px;text-align:center;font-size:17px}
+.nav .cnt{margin-left:auto;background:var(--orange);color:#1a0d00;font-size:11px;font-weight:700;padding:1px 7px;border-radius:20px}
+.side-foot{margin-top:auto;font-size:12px;color:var(--mute);padding:10px 8px;border-top:1px solid var(--line)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:14px 26px;background:rgba(15,11,20,.8);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.search{flex:1;max-width:620px;position:relative}
+.search input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px 11px 40px;outline:none}
+.search input:focus{border-color:var(--orange)}
+.search::before{content:"⌕";position:absolute;left:14px;top:7px;font-size:20px;color:var(--mute)}
+.results{position:absolute;top:48px;left:0;right:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;max-height:380px;overflow:auto;display:none;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.results.show{display:block}
+.results .r{padding:10px 14px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--line);cursor:pointer}
+.results .r:hover{background:var(--panel2)}
+.top-actions{display:flex;gap:8px;margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:11px;font-weight:600;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.btn:hover{border-color:var(--orange)}
+.btn.primary{background:var(--grad);border:0;color:#fff}
+.btn{text-decoration:none}
+.loader{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.loader .logo{font-size:70px}
+.btn.sm{padding:6px 10px;font-size:13px}
+.bell{position:relative}
+.bell b{position:absolute;top:-4px;right:-4px;background:var(--pink);font-size:10px;border-radius:10px;padding:1px 5px}
+
+.page{padding:26px;display:none;animation:fade .25s}
+.page.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+h1{font-family:'Bebas Neue';font-weight:400;font-size:40px;letter-spacing:1px;line-height:1}
+h2{font-size:15px;text-transform:uppercase;letter-spacing:2px;color:var(--mute);font-weight:700;margin-bottom:12px}
+.sub{color:var(--mute);margin:4px 0 22px}
+.head{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:4px}
+.head .btn{margin-left:auto}
+
+/* cards */
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:22px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden;cursor:pointer;transition:.15s}
+.kpi:hover{transform:translateY(-2px);border-color:var(--orange)}
+.kpi .l{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mute);font-weight:700}
+.kpi .v{font-family:'Bebas Neue';font-size:42px;line-height:1.05;margin-top:6px}
+.kpi .d{font-size:13px;color:var(--mute)}
+.kpi .d.up{color:var(--green)}
+.kpi::after{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:var(--grad);opacity:.12}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.two{grid-template-columns:1.4fr 1fr}
+.three{grid-template-columns:repeat(3,1fr)}
+
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 16px}
+.tab{padding:7px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-weight:600;font-size:14px;color:var(--mute)}
+.tab:hover{color:var(--txt)}
+.tab.on{background:var(--txt);color:var(--bg);border-color:var(--txt)}
+.tab i{font-style:normal;margin-left:6px;background:var(--panel2);color:var(--amber);padding:0 7px;border-radius:10px;font-size:12px}
+.tab.on i{background:var(--orange);color:#fff}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.tbl th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--mute);padding:12px 14px;border-bottom:1px solid var(--line);background:var(--bg2)}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr.row{cursor:pointer}
+.tbl tr.row:hover td{background:var(--panel2)}
+.tbl tr:last-child td{border-bottom:0}
+.thumb{width:40px;height:40px;border-radius:9px;background:var(--panel2);display:grid;place-items:center;font-size:20px;flex:none}
+.cell-main{display:flex;align-items:center;gap:12px}
+.cell-main b{display:block}
+.cell-main small{color:var(--mute)}
+
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.b-orange{background:rgba(255,122,26,.16);color:var(--orange)}
+.b-green{background:rgba(61,220,151,.14);color:var(--green)}
+.b-blue{background:rgba(79,163,255,.15);color:var(--blue)}
+.b-violet{background:rgba(167,123,255,.16);color:var(--violet)}
+.b-pink{background:rgba(255,79,109,.15);color:var(--pink)}
+.b-mute{background:var(--panel2);color:var(--mute)}
+.ch{font-size:11px;font-weight:700;padding:2px 6px;border-radius:6px;margin-right:4px}
+.ch.woo{background:var(--woo);color:#fff}.ch.ebay{background:var(--ebay);color:#fff}.ch.off{background:var(--panel2);color:var(--mute);text-decoration:line-through}
+
+/* feed */
+.feed .it{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.feed .it:last-child{border:0}
+.feed .when{color:var(--mute);font-size:12px;margin-left:auto;white-space:nowrap}
+.alert{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:12px;background:rgba(255,178,63,.08);border:1px solid rgba(255,178,63,.3);margin-bottom:10px;cursor:pointer}
+.alert.red{background:rgba(255,79,109,.08);border-color:rgba(255,79,109,.35)}
+
+/* connectors */
+.conn{display:flex;flex-direction:column;gap:10px}
+.cx{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.cx .lg{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:15px;flex:none}
+.cx .st{margin-left:auto;text-align:right;font-size:13px}
+.cx.later{opacity:.55}
+
+/* chart */
+.bars{display:flex;align-items:flex-end;gap:8px;height:170px;padding-top:10px}
+.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bars .col{width:100%;border-radius:7px 7px 3px 3px;background:var(--grad);min-height:4px;position:relative}
+.bars .col.e{background:linear-gradient(180deg,#e53238,#7a1a1f)}
+.bars .stk{width:100%;display:flex;flex-direction:column;gap:2px}
+.bars span{font-size:11px;color:var(--mute)}
+
+/* drawer */
+.veil{position:fixed;inset:0;background:rgba(5,3,8,.6);backdrop-filter:blur(3px);z-index:50;display:none}
+.veil.show{display:block}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--bg2);border-left:1px solid var(--line);z-index:60;transform:translateX(105%);transition:.28s cubic-bezier(.2,.8,.2,1);overflow:auto}
+.drawer.show{transform:none}
+.dr-head{position:sticky;top:0;background:var(--bg2);padding:18px 22px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start;z-index:2}
+.dr-head .x{margin-left:auto;font-size:22px;color:var(--mute);padding:0 6px}
+.dr-body{padding:20px 22px;display:flex;flex-direction:column;gap:18px}
+.photos{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+.ph{aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,var(--panel2),var(--panel));display:grid;place-items:center;font-size:42px;border:1px solid var(--line)}
+.ph:first-child{grid-row:span 2;font-size:80px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kv div{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.kv small{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--mute);font-weight:700}
+.kv b{font-size:16px}
+.sec{border-top:1px solid var(--line);padding-top:16px}
+.tl{border-left:2px solid var(--line);margin-left:6px;padding-left:16px;display:flex;flex-direction:column;gap:12px}
+.tl div{position:relative;font-size:14px}
+.tl div::before{content:"";position:absolute;left:-22px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--orange)}
+.tl small{color:var(--mute);display:block}
+.margin{display:flex;gap:10px}
+.margin div{flex:1;text-align:center;background:var(--panel);border-radius:11px;padding:10px;border:1px solid var(--line)}
+.margin b{display:block;font-family:'Bebas Neue';font-size:30px}
+.margin small{color:var(--mute);font-size:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* messages */
+.inbox{display:grid;grid-template-columns:360px 1fr;gap:16px;height:calc(100vh - 210px);min-height:460px}
+.mlist{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:auto}
+.msg{padding:13px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+.msg:hover,.msg.on{background:var(--panel2)}
+.msg.unread b{color:var(--amber)}
+.msg .t{display:flex;gap:8px;align-items:center}
+.msg .t span{margin-left:auto;font-size:12px;color:var(--mute)}
+.msg p{color:var(--mute);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.mview{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden}
+.mview .mh{padding:16px 18px;border-bottom:1px solid var(--line)}
+.mview .mb{padding:18px;flex:1;overflow:auto;line-height:1.55}
+.bubble{background:var(--panel2);border-radius:12px;padding:12px 14px;margin-bottom:12px;max-width:85%}
+.bubble.me{margin-left:auto;background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.3)}
+.mview .mf{padding:12px;border-top:1px solid var(--line);display:flex;gap:8px}
+.mview textarea{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px;resize:none;height:64px;outline:none}
+
+/* copilot */
+.cop{position:fixed;right:22px;bottom:22px;z-index:40}
+.cop-btn{width:58px;height:58px;border-radius:50%;background:var(--grad);font-size:26px;box-shadow:0 10px 30px rgba(255,79,109,.45)}
+.cop-panel{position:fixed;right:22px;bottom:92px;width:min(380px,calc(100% - 28px));height:min(540px,calc(100vh - 130px));background:var(--bg2);border:1px solid var(--line);border-radius:18px;z-index:45;display:none;flex-direction:column;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.cop-panel.show{display:flex}
+.cop-h{padding:14px 16px;background:var(--grad);font-weight:700;display:flex;align-items:center;gap:8px}
+.cop-h small{font-weight:500;opacity:.85;display:block;font-size:12px}
+.cop-b{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;font-size:14px}
+.cop-b .q{align-self:flex-end;background:rgba(255,122,26,.16);padding:9px 12px;border-radius:12px 12px 2px 12px;max-width:85%}
+.cop-b .a{background:var(--panel);padding:10px 12px;border-radius:12px 12px 12px 2px;max-width:92%;line-height:1.45}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 10px}
+.chip{font-size:12px;padding:5px 9px;border-radius:20px;background:var(--panel);border:1px solid var(--line)}
+.chip:hover{border-color:var(--orange)}
+.cop-f{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.cop-f input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px;outline:none}
+
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(120px);background:var(--panel2);border:1px solid var(--orange);padding:12px 18px;border-radius:12px;z-index:90;transition:.3s;font-weight:600}
+.toast.show{transform:translateX(-50%)}
+
+.empty{color:var(--mute);text-align:center;padding:40px}
+.hide-m{}
+.bottom{display:none}
+
+/* ---------- mobile ---------- */
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .top{padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top))}
+  .top .mlogo{display:block!important}
+  .top-actions .btn span{display:none}
+  .page{padding:16px 14px 100px}
+  h1{font-size:32px}
+  .two,.three{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .hide-m{display:none}
+  .tbl th:nth-child(n+4),.tbl td:nth-child(n+4){display:none}
+  .inbox{grid-template-columns:1fr;height:auto}
+  .mview{min-height:420px}
+  .bottom{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(15,11,20,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 4px max(6px,env(safe-area-inset-bottom))}
+  .bottom button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:var(--mute);padding:6px 0;font-weight:600}
+  .bottom button .ic{font-size:20px}
+  .bottom button.on{color:var(--orange)}
+  .cop{bottom:84px;right:14px}
+  .cop-panel{bottom:150px;right:14px}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+  .tab{flex:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div><div class="logo">LSMX</div><small>Hub · motocross</small></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div id="modeTag"><span class="dot" style="background:var(--amber)"></span>Données de démo</div>
+      <div style="margin-top:6px">Esteban · Maxence</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div class="logo mlogo" style="display:none;font-size:30px">LSMX</div>
+      <div class="search">
+        <input id="q" placeholder="UGS, réf. constructeur, pièce, client, n° de commande…" autocomplete="off">
+        <div class="results" id="results"></div>
+      </div>
+      <div class="top-actions">
+        <button class="btn hide-m" onclick="toast('📸 Ajout de pièce : bientôt branché sur WooCommerce')">＋ <span>Nouvelle pièce</span></button>
+        <button class="btn bell" onclick="go('messages')">🔔<b id="bellN">0</b></button>
+      </div>
+    </header>
+
+    <!-- ACCUEIL -->
+    <section class="page" id="p-accueil">
+      <div class="head"><div><h1 id="hello">Salut Esteban</h1><p class="sub" id="today"></p></div></div>
+      <div class="grid kpis" id="kpis"></div>
+      <div class="grid two">
+        <div class="card">
+          <h2>Chiffre d'affaires — 8 dernières semaines</h2>
+          <div class="bars" id="chart"></div>
+          <div style="display:flex;gap:16px;font-size:12px;color:var(--mute);margin-top:10px">
+            <span><span class="dot" style="background:var(--orange)"></span>Site WooCommerce</span>
+            <span><span class="dot" style="background:var(--ebay)"></span>eBay</span>
+          </div>
+        </div>
+        <div class="card">
+          <h2>À faire maintenant</h2>
+          <div id="alerts"></div>
+        </div>
+      </div>
+      <div class="grid two" style="margin-top:16px">
+        <div class="card feed"><h2>Activité</h2><div id="feed"></div></div>
+        <div class="card"><h2>Connexions</h2><div class="conn" id="connMini"></div></div>
+      </div>
+    </section>
+
+    <!-- PIECES -->
+    <section class="page" id="p-pieces">
+      <div class="head"><div><h1>Pièces</h1><p class="sub">Tout le stock, de la rentrée jusqu'à l'expédition.</p></div>
+        <button class="btn primary" onclick="toast('📸 Création de fiche : photos → IA → WooCommerce + eBay')">＋ Nouvelle pièce</button></div>
+      <div class="tabs" id="ptabs"></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="pfilters"></div>
+      <table class="tbl"><thead><tr><th>Pièce</th><th>Statut</th><th>Prix</th><th>Canaux</th><th>État</th><th>Rentrée</th></tr></thead><tbody id="ptbody"></tbody></table>
+    </section>
+
+    <!-- COMMANDES -->
+    <section class="page" id="p-commandes">
+      <div class="head"><div><h1>Commandes</h1><p class="sub">Site et eBay dans une seule liste.</p></div></div>
+      <div class="tabs" id="otabs"></div>
+      <table class="tbl"><thead><tr><th>Commande</th><th>Statut</th><th>Total</th><th>Source</th><th>Transport</th><th>Date</th></tr></thead><tbody id="obody"></tbody></table>
+    </section>
+
+    <!-- MESSAGES -->
+    <section class="page" id="p-messages">
+      <div class="head"><div><h1>Demandes clients</h1><p class="sub">Tes mails restent dans ta boîte mail. Le Hub lit les demandes de pièces, cherche dans le stock et te donne la réponse.</p></div></div>
+      <div class="tabs" id="mtabs"></div>
+      <div id="reqs" style="display:flex;flex-direction:column;gap:14px"></div>
+    </section>
+
+    <!-- FOURNISSEURS -->
+    <section class="page" id="p-fournisseurs">
+      <div class="head"><div><h1>Fournisseurs</h1><p class="sub">Achats, arrivages et marges.</p></div>
+        <button class="btn primary" onclick="toast('📦 Nouvel achat : bientôt disponible')">＋ Nouvel achat</button></div>
+      <div class="grid three" id="suppliers" style="margin-bottom:20px"></div>
+      <h2>Achats & arrivages</h2>
+      <table class="tbl"><thead><tr><th>Lot</th><th>Statut</th><th>Coût</th><th>Pièces</th><th>Valeur revente</th><th>Date</th></tr></thead><tbody id="sbody"></tbody></table>
+    </section>
+
+    <!-- STATS -->
+    <section class="page" id="p-stats">
+      <div class="head"><div><h1>Stats</h1><p class="sub">Ce qui se vend, où, et combien ça rapporte.</p></div></div>
+      <div class="grid kpis" id="skpis"></div>
+      <div class="grid two">
+        <div class="card"><h2>Ventes par marque</h2><div id="byBrand"></div></div>
+        <div class="card"><h2>Ventes par catégorie</h2><div id="byCat"></div></div>
+      </div>
+      <div class="card" style="margin-top:16px"><h2>Réseaux sociaux</h2>
+        <p style="color:var(--mute)">📷 Instagram, Facebook, TikTok : <b style="color:var(--txt)">prévu plus tard</b>. On branchera les stats en lecture seule quand tu seras prêt, sans rien publier à ta place.</p></div>
+    </section>
+
+    <!-- CONNEXIONS -->
+    <section class="page" id="p-connexions">
+      <div class="head"><div><h1>Connexions</h1><p class="sub">Les outils que le Hub relie entre eux.</p></div></div>
+      <div class="conn" id="connFull"></div>
+    </section>
+  </div>
+</div>
+
+<nav class="bottom" id="bottom"></nav>
+
+<div class="veil" id="veil" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer"></aside>
+
+<div class="cop">
+  <button class="cop-btn" onclick="toggleCop()" title="Copilot LSMX">🤖</button>
+</div>
+<div class="cop-panel" id="cop">
+  <div class="cop-h">🤖<div>Copilot LSMX<small>Mode démo : réponses simulées</small></div><button style="margin-left:auto;font-size:20px" onclick="toggleCop()">×</button></div>
+  <div class="cop-b" id="copB"><div class="a">Salut 👋 Pose-moi une question sur ton stock, tes ventes ou tes commandes.</div></div>
+  <div class="chips" id="copChips"></div>
+  <form class="cop-f" onsubmit="askCop(event)"><input id="copQ" placeholder="Demande-moi…" autocomplete="off"><button class="btn primary sm">➤</button></form>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/*LSMX_CFG*/
+const LIVE=window.LSMX_CFG||null;
+/* =================== DONNÉES DE DÉMO =================== */
+const BRANDS=['KTM','YAMAHA','HONDA','KAWASAKI','SUZUKI','HUSQVARNA','GASGAS'];
+const MODELS={KTM:['250 SX-F','350 SX-F','450 SX-F','125 SX','300 EXC'],YAMAHA:['YZ250F','YZ450F','YZ125'],HONDA:['CRF250R','CRF450R'],KAWASAKI:['KX250F','KX450F'],SUZUKI:['RM-Z250','RM-Z450'],HUSQVARNA:['FC 250','FC 450','TE 300'],GASGAS:['MC 250F','EX 350F']};
+const CATS=[['Pièces moteur','⚙️'],['Transmission','⛓️'],['Partie cycle','🏍️'],['Suspensions','🔩'],['Freinage','🛑'],['Roues','🛞'],['Électricité','⚡'],['Pilotage','🎮'],['Carénage','🛡️'],['Échappement','💨'],['Admission/Carburation','🌀']];
+const NAMES={ 'Pièces moteur':['Culasse complète','Piston + segments','Carter embrayage','Arbre à cames admission','Cylindre'],
+ 'Transmission':['Kit chaîne','Couronne 50 dents','Pignon de sortie 13T'],'Partie cycle':['Cadre avec carte grise','Bras oscillant','Té de fourche supérieur','Repose-pieds'],
+ 'Suspensions':['Fourche WP Xact','Amortisseur arrière','Biellette de suspension'],'Freinage':['Étrier avant Brembo','Disque avant 260mm','Maître-cylindre arrière'],
+ 'Roues':['Roue avant complète','Moyeu arrière','Jante Excel 19"'],'Électricité':['Faisceau électrique','Bobine HT','Boîtier CDI'],'Pilotage':['Guidon Renthal','Levier embrayage','Commodo'],
+ 'Carénage':['Kit plastique','Plaque phare','Ouïes de radiateur'],'Échappement':['Silencieux Akrapovic','Collecteur titane'],'Admission/Carburation':['Boîtier papillon','Boîte à air','Corps d\'injection']};
+const ETATS=['Neuf','Trés Bon','Bon','Mauvais','À réparer'];
+const STATUTS=[
+ {k:'nettoyer',l:'À nettoyer',c:'b-mute'},{k:'photo',l:'À photographier',c:'b-violet'},{k:'publier',l:'À publier',c:'b-orange'},
+ {k:'vente',l:'En vente',c:'b-green'},{k:'reserve',l:'Réservé',c:'b-blue'},{k:'expedier',l:'Vendu · à expédier',c:'b-pink'},{k:'vendu',l:'Vendu · expédié',c:'b-mute'}];
+const SUPPLIERS=[
+ {n:'Casse moto Normandie',t:'Épaves & motos accidentées',e:'🏚️',lots:6},
+ {n:'Concession KTM (destockage)',t:'Pièces neuves avec références',e:'🟧',lots:2},
+ {n:'Particuliers (Leboncoin)',t:'Motos & lots ponctuels',e:'🤝',lots:11},
+ {n:'Enchères assurances',t:'Motos VEI / sinistrées',e:'🔨',lots:3},
+ {n:'Atelier partenaire',t:'Reprises & pièces démontées',e:'🔧',lots:4},
+ {n:'Import Europe',t:'Lots grossistes',e:'🌍',lots:1}];
+
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+const pick=a=>a[Math.floor(rnd()*a.length)];
+const day=n=>{const d=new Date();d.setDate(d.getDate()-n);return d};
+const fmtD=d=>d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+const eur=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+
+const PARTS=[];
+const stW=[0.07,0.08,0.1,0.48,0.04,0.06,0.17];
+for(let i=0;i<180;i++){
+  const brand=pick(BRANDS),model=pick(MODELS[brand]),[cat,ic]=pick(CATS),name=pick(NAMES[cat]);
+  let r=rnd(),s=0,acc=0;for(;s<stW.length;s++){acc+=stW[s];if(r<acc)break}
+  const st=STATUTS[Math.min(s,6)].k;
+  const etat=brand==='KTM'&&rnd()<.35?'Neuf':pick(['Trés Bon','Bon','Bon','Trés Bon','Mauvais','À réparer']);
+  const price=Math.round((20+rnd()*(cat==='Suspensions'||cat==='Partie cycle'?520:260))/5)*5;
+  const cost=Math.round(price*(0.25+rnd()*0.3));
+  const y=2016+Math.floor(rnd()*9);
+  PARTS.push({id:2601180-i,sku:2601180-i,brand,model,year:y,cat,ic,name,st,etat,price,cost,
+    woo:['vente','reserve','expedier','vendu'].includes(st),ebay:['vente','reserve'].includes(st)&&rnd()<.82,
+    ref:etat==='Neuf'?'A'+(79000000+Math.floor(rnd()*999999)):'',
+    supplier:pick(SUPPLIERS).n,inDate:day(Math.floor(rnd()*120)),views:Math.floor(rnd()*400),
+    loc:'Étagère '+pick(['A','B','C','D'])+Math.ceil(rnd()*6)});
+  const L=PARTS[PARTS.length-1];L.yFrom=L.yTo=L.year;
+}
+const CLIENTS=['Thomas L.','Julien M.','Kevin D.','moto-team-56','Lucas B.','Romain P.','mx_dav','Anthony R.','Maxime G.','enduro_lolo','Nicolas F.','Hugo T.'];
+const CITIES=['Rouen','Caen','Lyon','Bordeaux','Lille','Nantes','Bruxelles','Toulouse','Le Havre','Rennes'];
+const OSTAT=[{k:'payee',l:'Payée · à préparer',c:'b-pink'},{k:'prete',l:'Colis prêt',c:'b-orange'},{k:'expediee',l:'Expédiée',c:'b-blue'},{k:'livree',l:'Livrée',c:'b-green'},{k:'litige',l:'Retour / litige',c:'b-violet'}];
+const ORDERS=[];
+for(let i=0;i<46;i++){
+  const src=rnd()<.58?'woo':'ebay';const n=1+Math.floor(rnd()*2.3);
+  const items=Array.from({length:n},()=>pick(PARTS.filter(p=>p.st!=='nettoyer')));
+  const d=Math.floor(i*1.4+rnd()*2);
+  const ks=d<2?pick(['payee','payee','prete']):d<6?pick(['prete','expediee','expediee']):d<12?pick(['expediee','livree']):pick(['livree','livree','livree','litige']);
+  const tot=items.reduce((a,p)=>a+p.price,0);
+  ORDERS.push({id:src==='woo'?'#'+(4820-i):'eBay '+(Math.floor(rnd()*9e2)+100)+'-'+(Math.floor(rnd()*9e4)+1e4),src,client:pick(CLIENTS),city:pick(CITIES),items,tot,ship:tot>300?'Chronopost':'Colissimo',st:ks,date:day(d),track:ks==='expediee'||ks==='livree'?'6A'+Math.floor(rnd()*9e10):''});
+}
+const MSGS=[
+ {src:'ebay',from:'mx_dav',sub:'Compatible 2019 ?',body:'Bonjour, la fourche WP Xact est-elle compatible avec une 250 SX-F de 2019 ? Merci',part:0,d:0,unread:true},
+ {src:'gmail',from:'Thomas L.',sub:'Commande #4819 — délai ?',body:'Salut, j\'ai commandé hier la culasse, vous pensez l\'envoyer quand ? Je dois remonter le moteur ce week-end.',d:0,unread:true},
+ {src:'site',from:'Kevin D.',sub:'Formulaire contact : recherche pièce',body:'Vous auriez un carter d\'embrayage pour une YZ450F 2021 ?',d:1,unread:true},
+ {src:'ebay',from:'enduro_lolo',sub:'Offre : 120 € ?',body:'Je vous propose 120 € pour l\'étrier Brembo, envoi rapide possible ?',d:1,unread:true},
+ {src:'gmail',from:'Concession KTM',sub:'Facture lot destockage n°2',body:'Bonjour, veuillez trouver ci-joint la facture du lot n°2 (84 références). Cordialement.',d:2,unread:false},
+ {src:'gmail',from:'Colissimo',sub:'Votre colis a été livré',body:'Le colis 6A2291736452 a été remis à son destinataire.',d:3,unread:false},
+ {src:'ebay',from:'moto-team-56',sub:'Merci !',body:'Pièce reçue, nickel, merci pour l\'emballage 👍',d:4,unread:false},
+];
+MSGS.forEach((m,i)=>{m.id=i;m.part=PARTS.find(p=>p.st==='vente'&&p.cat==='Suspensions')});
+const LOTS=[
+ {n:'Lot destockage KTM n°2',sup:'Concession KTM (destockage)',st:'Arrivé · à rentrer',c:'b-orange',cost:3400,nb:84,val:11200,d:2},
+ {n:'KX450F 2020 accidentée',sup:'Enchères assurances',st:'En démontage',c:'b-violet',cost:1350,nb:41,val:4100,d:9},
+ {n:'Lot pièces moteur YZ',sup:'Particuliers (Leboncoin)',st:'Rentré',c:'b-green',cost:280,nb:12,val:910,d:16},
+ {n:'Lot destockage KTM n°1',sup:'Concession KTM (destockage)',st:'Rentré',c:'b-green',cost:2900,nb:76,val:9800,d:31},
+ {n:'CRF250R 2018 épave',sup:'Casse moto Normandie',st:'Rentré',c:'b-green',cost:650,nb:33,val:2600,d:44},
+ {n:'Commande à venir : lot GasGas',sup:'Import Europe',st:'Commandé',c:'b-blue',cost:1800,nb:60,val:5200,d:-5},
+];
+const CONN=[
+ {n:'WooCommerce',d:'lsmx-pieces.com · produits, commandes, stock',lg:'W',bg:'var(--woo)',st:'Prévu · étape 1',ok:0},
+ {n:'eBay',d:'Annonces, commandes, messages',lg:'e',bg:'var(--ebay)',st:'Worker existant à brancher',ok:0},
+ {n:'Gmail',d:'Mails clients, fournisseurs, transporteurs',lg:'M',bg:'#ea4335',st:'Prévu',ok:0},
+ {n:'Google Sheets',d:'Ancienne base de stock (lecture / migration)',lg:'S',bg:'#0f9d58',st:'Prévu',ok:0},
+ {n:'Colissimo / Chronopost',d:'Étiquettes et suivi colis',lg:'📦',bg:'#ffcd00',st:'Prévu',ok:0},
+ {n:'Fournisseurs',d:'Achats, factures, arrivages',lg:'🚚',bg:'var(--panel2)',st:'Module interne',ok:0},
+ {n:'IA (Claude)',d:'Fiches produits, réponses clients, Copilot',lg:'AI',bg:'var(--grad)',st:'Déjà utilisé par le Worker',ok:0},
+ {n:'Instagram / Facebook',d:'Stats des réseaux (lecture seule)',lg:'IG',bg:'linear-gradient(45deg,#f9a825,#e1306c,#833ab4)',st:'Plus tard',ok:-1},
+];
+
+/* =================== DONNÉES RÉELLES (WooCommerce) =================== */
+function th(p){if(p&&p.img)return `<div class="thumb" style="background:var(--panel2) url('${p.img}') center/cover"></div>`;return `<div class="thumb">${p?p.ic:'📦'}</div>`}
+const MAINCATS=[['Pièces moteur','⚙️'],['Boîte de vitesses','⚙️'],['Transmission','⛓️'],['Partie cycle','🏍️'],['Suspensions','🔩'],['Freinage','🛑'],['Roues','🛞'],['Électricité','⚡'],['Pilotage','🎮'],['Carénage','🛡️'],['Echappement','💨'],['Échappement','💨'],['Admission/Carburation','🌀']];
+const meta=(p,k)=>{const m=(p.meta_data||[]).find(m=>m.key===k);return m?m.value:''};
+const attr=(p,n)=>{const a=(p.attributes||[]).find(a=>norm(a.name).startsWith(n));return a?a.options.join(' / '):''};
+const thumbSrc=s=>s?s.replace(/-scaled(\.\w+)$/,'-150x150$1'):'';
+function mapProduct(p){
+  const cats=(p.categories||[]).map(c=>c.name);
+  const top=['Pièces moteur','Transmission','Partie cycle','Suspensions','Freinage','Roues','Électricité','Pilotage','Carénage','Echappement','Échappement','Admission/Carburation'];
+  const cat=cats.find(c=>top.some(t=>norm(t)===norm(c)))||cats.find(c=>!/occasion|neuve?s?$/i.test(c))||cats[0]||'—';
+  const ic=(MAINCATS.find(([c])=>norm(c)===norm(cat))||[0,'🔧'])[1];
+  const year=parseInt(attr(p,'ann'))||'';
+  const rg=(p.name||'').match(/((?:19|20)\d{2})\s*(?:-|–|à|a)\s*((?:19|20)\d{2})/);
+  const st=p.status!=='publish'?'publier':(p.stock_status==='outofstock'||p.stock_quantity===0)?'vendu':'vente';
+  let log=null;try{const l=meta(p,'_lsmx_log');log=l?(typeof l==='string'?JSON.parse(l):l):null}catch(e){}
+  return{id:p.id,sku:p.sku||('#'+p.id),name:p.name,brand:(attr(p,'marq')||'—').toUpperCase(),model:attr(p,'mod')||'',year,
+    yFrom:rg?+rg[1]:year,yTo:rg?+rg[2]:year,cat,sub:meta(p,'lsmx_sous_cat'),ic,st,etat:meta(p,'etat_du_produit')||'—',
+    price:parseFloat(p.price||p.regular_price)||0,cost:parseFloat(meta(p,'lsmx_prix_achat'))||0,
+    woo:p.status==='publish'&&st!=='vendu',ebay:meta(p,'_ebay_synced')==='yes'&&st==='vente',
+    ref:meta(p,'lsmx_num_serie')||'',marquePiece:meta(p,'lsmx_marque_piece')||'',supplier:'',views:null,
+    inDate:new Date(p.date_created),loc:meta(p,'lsmx_emplacement')||'—',
+    img:thumbSrc((p.images[0]||{}).src),imgs:(p.images||[]).map(i=>i.src),link:p.permalink,
+    edit:LIVE.admin+'post.php?post='+p.id+'&action=edit',log:Array.isArray(log)?log:null};
+}
+function mapOrder(o){
+  const map={processing:'payee','on-hold':'payee',pending:'payee',completed:'expediee',refunded:'litige',cancelled:'litige',failed:'litige'};
+  const items=o.line_items.map(li=>PARTS.find(p=>p.id===li.product_id)||{id:0,name:li.name,ic:'📦',brand:'',model:'',sku:li.sku||'',price:+li.total,cost:0,loc:'—',etat:''});
+  const b=o.billing||{},s=o.shipping||{};
+  return{id:'#'+o.number,oid:o.id,src:'woo',client:((b.first_name||'')+' '+(b.last_name||'').slice(0,1)+'.').trim(),city:s.city||b.city||'',items,tot:+o.total,
+    ship:(o.shipping_lines[0]||{}).method_title||'—',st:map[o.status]||'payee',wstatus:o.status,date:new Date(o.date_created),track:'',
+    pay:o.payment_method_title,edit:LIVE.admin+'post.php?post='+o.id+'&action=edit'};
+}
+async function wc(path){
+  const r=await fetch(LIVE.root+'wc/v3/'+path,{headers:{'X-WP-Nonce':LIVE.nonce},credentials:'same-origin'});
+  if(!r.ok)throw new Error(path.split('?')[0]+' → erreur '+r.status);
+  return{j:await r.json(),pages:+(r.headers.get('X-WP-TotalPages')||1)};
+}
+async function loadLive(){
+  const F='id,name,sku,status,price,regular_price,stock_quantity,stock_status,categories,attributes,meta_data,images,date_created,permalink';
+  const q=p=>`products?per_page=100&status=any&page=${p}&_fields=${F}`;
+  const first=await wc(q(1));let all=first.j;
+  const rest=[];for(let p=2;p<=first.pages;p++)rest.push(wc(q(p)));
+  (await Promise.all(rest)).forEach(x=>all=all.concat(x.j));
+  PARTS.length=0;all.forEach(p=>PARTS.push(mapProduct(p)));
+  const os=await Promise.all([1,2].map(p=>wc('orders?per_page=100&page='+p).catch(()=>({j:[]}))));
+  ORDERS.length=0;os.forEach(x=>x.j.forEach(o=>ORDERS.push(mapOrder(o))));
+  const w=CONN.find(c=>c.n==='WooCommerce');w.ok=1;w.st='Connecté · '+PARTS.length+' produits';
+}
+
+/* =================== NAVIGATION =================== */
+const PAGES=[['accueil','🏠','Accueil'],['pieces','🔧','Pièces'],['commandes','📦','Commandes'],['messages','📩','Demandes'],['fournisseurs','🚚','Fournisseurs'],['stats','📊','Stats'],['connexions','🔌','Connexions']];
+const $=s=>document.querySelector(s);
+function counts(){return{commandes:ORDERS.filter(o=>o.st==='payee'||o.st==='prete').length,messages:REQS.length,pieces:PARTS.filter(p=>p.st==='publier').length}}
+function renderNav(cur){
+  const c=counts();
+  $('#nav').innerHTML=PAGES.map(([k,ic,l])=>`<button class="${k===cur?'on':''}" onclick="go('${k}')"><span class="ic">${ic}</span>${l}${c[k]?`<span class="cnt">${c[k]}</span>`:''}</button>`).join('');
+  $('#bottom').innerHTML=PAGES.filter(p=>p[0]!=='connexions'&&p[0]!=='stats').map(([k,ic,l])=>`<button class="${k===cur?'on':''}" onclick="go('${k}')"><span class="ic">${ic}</span>${l}</button>`).join('')+`<button class="${['stats','connexions'].includes(cur)?'on':''}" onclick="go('stats')"><span class="ic">📊</span>Stats</button>`;
+  $('#bellN').textContent=c.messages;
+}
+function go(k){
+  if(!PAGES.find(p=>p[0]===k))k='accueil';
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+k));
+  renderNav(k);window.scrollTo(0,0);
+  if(location.hash!=='#'+k)history.replaceState(null,'','#'+k);
+}
+window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
+
+/* =================== ACCUEIL =================== */
+function renderHome(){
+  const h=new Date().getHours();
+  $('#hello').textContent=(h<18?'Salut':'Bonsoir')+' '+(LIVE&&LIVE.user?LIVE.user.split(' ')[0]:'Esteban')+' 🏁';
+  $('#today').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' · voici où en est LSMX';
+  const age=o=>(new Date()-o.date)/864e5;const ok=o=>o.st!=='litige';
+  const month=ORDERS.filter(o=>ok(o)&&age(o)<30).reduce((a,o)=>a+o.tot,0);const prev=ORDERS.filter(o=>ok(o)&&age(o)>=30&&age(o)<60).reduce((a,o)=>a+o.tot,0);
+  const delta=prev?Math.round((month-prev)/prev*100):null;
+  const enVente=PARTS.filter(p=>p.st==='vente');
+  const k=[
+    ['CA 30 jours',eur(month),delta==null?'site WooCommerce':(delta>=0?'+':'')+delta+' % vs mois d\'avant',delta>=0?'up':'','stats'],
+    ['À expédier',ORDERS.filter(o=>o.st==='payee'||o.st==='prete').length,'colis à préparer','', 'commandes'],
+    ['Demandes',REQS.length,REQS.filter(r=>r.res.type!=='rien').length+' avec pièces en stock','','messages'],
+    ['En vente',enVente.length,'valeur '+eur(enVente.reduce((a,p)=>a+p.price,0)),'','pieces'],
+    ['À publier',PARTS.filter(p=>p.st==='publier').length,'fiches à créer','','pieces'],
+  ];
+  $('#kpis').innerHTML=k.map(([l,v,d,c,to])=>`<div class="kpi" onclick="go('${to}')"><div class="l">${l}</div><div class="v">${v}</div><div class="d ${c}">${d}</div></div>`).join('');
+  // chart
+  const weeks=[...Array(8)].map((_,w)=>{const os=ORDERS.filter(o=>{const a=(new Date()-o.date)/864e5;return a>=(7-w)*7&&a<(8-w)*7});return{w:os.filter(o=>o.src==='woo').reduce((a,o)=>a+o.tot,0)+(LIVE?0:400+w*60),e:os.filter(o=>o.src==='ebay').reduce((a,o)=>a+o.tot,0)+(LIVE?0:250+w*40)}});
+  const max0=Math.max(1,...weeks.map(x=>x.w+x.e));
+  const max=max0;
+  $('#chart').innerHTML=weeks.map((x,i)=>`<div class="b" title="${eur(x.w+x.e)}"><div class="stk" style="height:${(x.w+x.e)/max*100}%"><div class="col e" style="flex:${x.e}"></div><div class="col" style="flex:${x.w}"></div></div><span>S-${7-i}</span></div>`).join('');
+  // alerts
+  const al=[
+    ['red','📦',`<b>${ORDERS.filter(o=>o.st==='payee').length} commandes payées</b> attendent d'être préparées`,'commandes'],
+    ['','💬',`<b>${REQS.length} demandes de pièces</b> reçues par mail, déjà vérifiées dans le stock`,'messages'],
+    ...(LIVE?[['','📝',`<b>${PARTS.filter(p=>p.st==='publier').length} fiches</b> en brouillon, pas encore publiées`,'pieces']]:[['','🟧',`<b>Lot destockage KTM n°2</b> arrivé : 84 références à rentrer`,'fournisseurs'],['','📸',`<b>${PARTS.filter(p=>p.st==='photo').length} pièces</b> à photographier`,'pieces']]),
+  ];
+  $('#alerts').innerHTML=al.map(([c,i,t,to])=>`<div class="alert ${c}" onclick="go('${to}')"><span style="font-size:20px">${i}</span><span>${t}</span><span style="margin-left:auto;color:var(--mute)">→</span></div>`).join('');
+  const feed=LIVE?[]:[
+    ['🛒','Vente sur le site : '+PARTS[3].name+' '+PARTS[3].brand,'il y a 12 min'],
+    ['🟥','Vente eBay : '+PARTS[8].name+' '+PARTS[8].brand+' → retirée du site automatiquement','il y a 1 h'],
+    ['🤖','IA : 6 fiches produits générées et publiées sur eBay','il y a 2 h'],
+    ['📦','Colissimo : colis #4811 livré à Caen','il y a 3 h'],
+    ['💶','Prix modifié : Fourche WP Xact 480 € → 450 € (site + eBay)','hier'],
+    ['🚚','Maxence a rentré 12 pièces du lot YZ','hier'],
+  ];
+  if(LIVE){const ev=[];PARTS.forEach(p=>(p.log||[]).forEach(l=>ev.push({d:new Date(l.date),t:`${l.user||''} · ${l.action||''} : ${p.name}`,i:'🔧'})));ORDERS.forEach(o=>ev.push({d:o.date,t:`Commande ${o.id} · ${o.client} · ${eur(o.tot)}`,i:'🛒'}));ev.sort((a,b)=>b.d-a.d);feed.length=0;ev.slice(0,8).forEach(e=>feed.push([e.i,e.t,e.d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+e.d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})]))}
+  $('#feed').innerHTML=feed.map(([i,t,w])=>`<div class="it"><span>${i}</span><span>${t}</span><span class="when">${w}</span></div>`).join('');
+  $('#connMini').innerHTML=CONN.slice(0,5).map(cxHTML).join('')+`<button class="btn sm" onclick="go('connexions')">Voir toutes les connexions →</button>`;
+}
+function cxHTML(c){
+  const col=c.ok===1?'var(--green)':c.ok===-1?'var(--mute)':'var(--amber)';
+  return `<div class="cx ${c.ok===-1?'later':''}"><div class="lg" style="background:${c.bg}">${c.lg}</div><div><b>${c.n}</b><div style="font-size:13px;color:var(--mute)">${c.d}</div></div><div class="st"><span class="dot" style="background:${col}"></span>${c.st}</div></div>`;
+}
+
+/* =================== PIECES =================== */
+let pTab='vente',pBrand='',pLimit=100;
+function renderParts(){
+  $('#ptabs').innerHTML=[{k:'all',l:'Toutes'}].concat(STATUTS).map(s=>{const n=s.k==='all'?PARTS.length:PARTS.filter(p=>p.st===s.k).length;if(LIVE&&!n&&s.k!=='all')return '';return `<button class="tab ${pTab===s.k?'on':''}" onclick="pTab='${s.k}';renderParts()">${s.l}<i>${n}</i></button>`}).join('');
+  $('#pfilters').innerHTML=['',...BRANDS].map(b=>`<button class="btn sm" style="${pBrand===b?'border-color:var(--orange);color:var(--orange)':''}" onclick="pBrand='${b}';renderParts()">${b||'Toutes marques'}</button>`).join('');
+  const list=PARTS.filter(p=>(pTab==='all'||p.st===pTab)&&(!pBrand||p.brand===pBrand)).sort((a,b)=>b.inDate-a.inDate);
+  $('#ptbody').innerHTML=list.slice(0,pLimit).map(p=>{const s=STATUTS.find(x=>x.k===p.st);
+    return `<tr class="row" onclick="openPart(${p.id})"><td><div class="cell-main">${th(p)}<div><b>${p.name}</b><small>${p.brand} ${p.model} ${p.year} · <span class="mono">${p.sku}</span></small></div></div></td>
+    <td><span class="badge ${s.c}">${s.l}</span></td><td><b>${eur(p.price)}</b></td>
+    <td><span class="ch ${p.woo?'woo':'off'}">SITE</span><span class="ch ${p.ebay?'ebay':'off'}">eBay</span></td><td>${p.etat}</td><td>${fmtD(p.inDate)}</td></tr>`}).join('')+(list.length>pLimit?`<tr><td colspan="6" style="text-align:center"><button class="btn sm" onclick="pLimit+=100;renderParts()">Afficher plus (${list.length-pLimit} restantes)</button></td></tr>`:'')||`<tr><td colspan="6" class="empty">Aucune pièce ici 👌</td></tr>`;
+}
+function openPart(id){
+  const p=PARTS.find(x=>x.id===id);if(!p)return;const s=STATUTS.find(x=>x.k===p.st);
+  const m=p.price-p.cost;const linked=ORDERS.filter(o=>o.items.includes(p));
+  $('#drawer').innerHTML=`<div class="dr-head"><div class="thumb" style="width:52px;height:52px;font-size:26px">${p.ic}</div><div><div class="mono" style="color:var(--mute)">UGS ${p.sku}</div><h1 style="font-size:30px">${p.name}</h1><div style="color:var(--mute)">${p.brand} ${p.model} · ${p.year}</div></div><button class="x" onclick="closeDrawer()">×</button></div>
+  <div class="dr-body">
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="badge ${s.c}">${s.l}</span><span class="badge b-mute">${p.cat}</span><span class="badge b-mute">État : ${p.etat}</span>${p.ref?`<span class="badge b-orange">Réf. ${p.ref}</span>`:''}</div>
+    ${p.imgs&&p.imgs.length?`<div class="photos">${p.imgs.slice(0,5).map(s=>`<div class="ph" style="background:url('${s}') center/cover"></div>`).join('')}</div>`:`<div class="photos"><div class="ph">${p.ic}</div><div class="ph">📷</div><div class="ph">📷</div><div class="ph">📷</div><div class="ph">＋</div></div>`}
+    <div class="margin"><div><small>Prix de vente</small><b>${eur(p.price)}</b></div><div><small>Prix d'achat</small><b>${eur(p.cost)}</b></div><div><small>Marge</small><b style="color:var(--green)">${eur(m)}</b></div></div>
+    <div class="kv"><div><small>Emplacement</small><b>${p.loc}</b></div><div><small>Rentrée le</small><b>${p.inDate.toLocaleDateString('fr-FR')}</b></div>${p.sub?`<div><small>Sous-catégorie</small><b>${p.sub}</b></div>`:''}${p.supplier?`<div><small>Fournisseur</small><b>${p.supplier}</b></div>`:''}${p.views!=null?`<div><small>Vues annonces</small><b>${p.views}</b></div>`:''}${p.marquePiece?`<div><small>Marque pièce</small><b>${p.marquePiece}</b></div>`:''}</div>
+    <div class="sec"><h2>Où elle est en vente</h2>
+      <div class="cx" style="margin-bottom:8px"><div class="lg" style="background:var(--woo)">W</div><div><b>lsmx-pieces.com</b><div style="font-size:13px;color:var(--mute)">${p.woo?'En ligne · stock 1':'Pas encore publiée'}</div></div><div class="st"><span class="dot" style="background:${p.woo?'var(--green)':'var(--mute)'}"></span>${p.woo?'Synchro OK':'—'}</div></div>
+      <div class="cx"><div class="lg" style="background:var(--ebay)">e</div><div><b>eBay</b><div style="font-size:13px;color:var(--mute)">${p.ebay?'Annonce active · catégorie 179753':'Non publiée'}</div></div><div class="st"><span class="dot" style="background:${p.ebay?'var(--green)':'var(--mute)'}"></span>${p.ebay?'Synchro OK':'—'}</div></div></div>
+    <div class="sec"><h2>Historique</h2><div class="tl">
+      ${(p.log||[]).slice().reverse().map(l=>`<div>${l.action||''} ${l.detail?'· '+l.detail:''}<small>${l.user||''} · ${(l.date||'').replace('T',' ')}</small></div>`).join('')}
+      ${p.log?'':`<div>Rentrée en stock<small>${p.inDate.toLocaleDateString('fr-FR')} · ${p.supplier}</small></div>
+      ${p.st!=='nettoyer'&&p.st!=='photo'?'<div>Fiche générée par l\'IA (titre, description, 13 mots-clés)<small>automatique</small></div>':''}
+      ${p.woo?'<div>Publiée sur le site<small>WooCommerce</small></div>':''}
+      ${p.ebay?'<div>Publiée sur eBay<small>Worker de synchro</small></div>':''}
+      `}${linked.map(o=>`<div>Vendue · commande ${o.id}<small>${o.client} · ${o.date.toLocaleDateString('fr-FR')}</small></div>`).join('')}
+    </div></div>
+    <div class="actions">${p.edit?`<a class="btn primary" href="${p.edit}" target="_blank">✏️ Modifier dans WooCommerce</a>`:`<button class="btn primary" onclick="toast('✏️ Modification : sera envoyée sur le site et eBay')">✏️ Modifier</button>`}${p.link?`<a class="btn" href="${p.link}" target="_blank">🌐 Voir sur le site</a>`:''}<button class="btn" onclick="toast('🤖 Régénération IA de la fiche (démo)')">🤖 Réécrire la fiche</button><button class="btn" onclick="toast('🏷️ Étiquette UGS envoyée à l\\'imprimante (démo)')">🏷️ Étiquette</button></div>
+  </div>`;
+  openDrawer();
+}
+
+/* =================== COMMANDES =================== */
+let oTab='todo';
+function renderOrders(){
+  const tabs=[{k:'todo',l:'À traiter',f:o=>o.st==='payee'||o.st==='prete'}].concat(OSTAT.map(s=>({k:s.k,l:s.l,f:o=>o.st===s.k}))).concat([{k:'all',l:'Toutes',f:()=>true}]);
+  $('#otabs').innerHTML=tabs.map(t=>`<button class="tab ${oTab===t.k?'on':''}" onclick="oTab='${t.k}';renderOrders()">${t.l}<i>${ORDERS.filter(t.f).length}</i></button>`).join('');
+  const f=tabs.find(t=>t.k===oTab).f;
+  $('#obody').innerHTML=ORDERS.filter(f).map((o,i)=>{const s=OSTAT.find(x=>x.k===o.st);
+    return `<tr class="row" onclick="openOrder('${o.id}')"><td><div class="cell-main">${th(o.items[0])}<div><b>${o.id}</b><small>${o.client} · ${o.items.length} pièce${o.items.length>1?'s':''}</small></div></div></td>
+    <td><span class="badge ${s.c}">${s.l}</span></td><td><b>${eur(o.tot)}</b></td><td><span class="ch ${o.src}">${o.src==='woo'?'SITE':'eBay'}</span></td><td>${o.ship}</td><td>${fmtD(o.date)}</td></tr>`}).join('')||`<tr><td colspan="6" class="empty">Rien à traiter 🎉</td></tr>`;
+}
+function openOrder(id){
+  const o=ORDERS.find(x=>x.id===id);const s=OSTAT.find(x=>x.k===o.st);
+  $('#drawer').innerHTML=`<div class="dr-head"><div class="thumb" style="width:52px;height:52px;font-size:26px">📦</div><div><span class="ch ${o.src}">${o.src==='woo'?'SITE':'eBay'}</span><h1 style="font-size:30px">Commande ${o.id}</h1><div style="color:var(--mute)">${o.client} · ${o.city} · ${o.date.toLocaleDateString('fr-FR')}</div></div><button class="x" onclick="closeDrawer()">×</button></div>
+  <div class="dr-body">
+    <div><span class="badge ${s.c}">${s.l}</span></div>
+    <div class="sec" style="border:0;padding:0"><h2>Pièces</h2>${o.items.map(p=>`<div class="cx" style="margin-bottom:8px;cursor:pointer" onclick="openPart(${p.id})">${th(p)}<div><b>${p.name}</b><div style="font-size:13px;color:var(--mute)">${p.brand} ${p.model} · <span class="mono">${p.sku}</span> · ${p.loc}</div></div><div class="st"><b>${eur(p.price)}</b></div></div>`).join('')}</div>
+    <div class="kv"><div><small>Total payé</small><b>${eur(o.tot)}</b></div><div><small>Transport</small><b>${o.ship}</b></div><div><small>Suivi</small><b class="mono">${o.track||'—'}</b></div><div><small>Paiement</small><b>${o.pay||(o.src==='woo'?'Stripe':'eBay Managed Payments')}</b></div></div>
+    <div class="sec"><h2>Suivi</h2><div class="tl">
+      <div>Commande payée<small>${o.date.toLocaleDateString('fr-FR')}</small></div>
+      <div>Stock mis à jour sur ${o.src==='woo'?'eBay':'le site'} automatiquement<small>synchro</small></div>
+      ${['prete','expediee','livree','litige'].includes(o.st)?'<div>Colis préparé<small>étiquette '+o.ship+'</small></div>':''}
+      ${['expediee','livree','litige'].includes(o.st)?'<div>Expédiée<small>'+o.track+'</small></div>':''}
+      ${['livree','litige'].includes(o.st)?'<div>Livrée<small>'+o.city+'</small></div>':''}
+      ${o.st==='litige'?'<div>Demande de retour ouverte<small>à traiter</small></div>':''}
+    </div></div>
+    <div class="actions">${o.edit?`<a class="btn primary" href="${o.edit}" target="_blank">📦 Ouvrir dans WooCommerce</a>`:''}<button class="btn ${o.edit?'':'primary'}" onclick="toast('🏷️ Étiquette ${o.ship} : bientôt branchée')">🏷️ Créer l'étiquette</button><button class="btn" onclick="toast('🧾 Facture PDF (démo)')">🧾 Facture</button></div>
+  </div>`;
+  openDrawer();
+}
+
+/* =================== DEMANDES CLIENTS =================== */
+const norm=s=>(s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const cmp=s=>norm(s).replace(/[^a-z0-9]/g,'');
+const PART_WORDS=['bras oscillant','te de fourche','boite de vitesses','boite a air','maitre cylindre','pompe a eau','garde boue','repose pied','plaque phare','plaque numero','kit plastique','kit chaine','selecteur','vilebrequin','culasse','cylindre','piston','bielle','carter','embrayage','allumage','stator','rotor','bobine','cdi','faisceau','injecteur','injection','carburateur','papillon','radiateur','durite','reservoir','selle','plastique','ouie','echappement','silencieux','collecteur','pot','fourche','amortisseur','biellette','cadre','boucle','roue','jante','moyeu','rayon','disque','etrier','frein','plaquette','guidon','levier','commodo','poignee','kick','chaine','couronne','pignon','arbre','cames','soupape','demarreur','batterie','sabot','phare','compteur','axe','roulement','joint','couvercle','pedale'];
+const BRAND_HINT=[['KTM',/\bktm\b|sx-?f|exc|\bsx\b|\bxc\b/],['YAMAHA',/yamaha|\byz|\bwr\d/],['HONDA',/honda|\bcrf|\bcr\d/],['KAWASAKI',/kawa|\bkx/],['SUZUKI',/suzuki|\brm-?z|\brm\d/],['HUSQVARNA',/husq|\bfc\s?\d|\btc\s?\d|\bte\s?\d|\bfe\s?\d/],['GASGAS',/gas\s?gas|\bmc\s?\d|\bec\s?\d|\bex\s?\d/]];
+function parseReq(txt){
+  const s=' '+norm(txt).replace(/[’']/g,' ')+' ';
+  const y=s.match(/\b(19[89]\d|20[0-3]\d)\b/);let year=y?+y[1]:null;
+  if(!year){const y2=s.match(/\b(?:de|en|annee|modele)\s+(0\d|1\d|2\d)\b/);if(y2)year=2000+ +y2[1]}
+  let m=s.match(/\b(\d{2,3})\s*-?\s*(sx-?f|exc-?f|xc-?f|xcf-?w|sx|exc|xc|tpi|smr|mxc)\b/);
+  let token=null;
+  if(m)token=m[1]+m[2].replace('-','');
+  else{m=s.match(/\b(yzf?|wrf?|crf?|kxf?|rm-?z|rmx?|fc|tc|te|fe|mc|ec|ex)\s*-?\s*(\d{2,3})\s*-?\s*(f|r|x|rx|fx)?\b/);if(m)token=m[1].replace('-','')+m[2]+(m[3]||'')}
+  const brand=(BRAND_HINT.find(([b,re])=>re.test(s))||[])[0]||null;
+  const terms=PART_WORDS.filter(w=>s.includes(' '+w)||s.includes(w+'s ')||s.includes(w+' '));
+  // garder les termes les plus longs (bras oscillant > bras)
+  const t2=terms.filter(t=>!terms.some(o=>o!==t&&o.includes(t)));
+  return{token,year,brand,terms:t2};
+}
+function partFits(p,r){
+  const hay=cmp(p.model+' '+p.name);
+  if(r.token){let tk=r.token;if(!hay.includes(tk)){ // tolérance : yz450f ↔ yz450, crf250r ↔ crf250
+      const base=tk.replace(/(f|r|x|rx|fx)$/,'');if(base.length<4||!hay.includes(base))return false}}
+  else if(r.brand){if(p.brand!==r.brand)return false}else return false;
+  if(r.brand&&p.brand&&p.brand!=='—'&&p.brand!==r.brand)return false;
+  return true;
+}
+function yearOk(p,y){if(!y)return true;const a=p.yFrom||p.year,b=p.yTo||p.year;if(!a)return true;return y>=a&&y<=b}
+function matchReq(r){
+  const dispo=['vente','publier','photo','nettoyer','reserve'];
+  const model=PARTS.filter(p=>dispo.includes(p.st)&&partFits(p,r));
+  const pool=model.filter(p=>yearOk(p,r.year));
+  const other=model.filter(p=>!yearOk(p,r.year));
+  if(!r.token&&!r.brand)return{type:'flou',parts:[],other:[]};
+  if(r.terms.length){
+    const ex=pool.filter(p=>r.terms.some(t=>cmp(p.name+' '+p.cat+' '+(p.sub||'')).includes(cmp(t))));
+    if(ex.length)return{type:'exact',parts:ex,other:pool.filter(p=>!ex.includes(p))};
+    return{type:pool.length?'liste':'rien',parts:pool,missed:true,other};
+  }
+  return{type:pool.length?'liste':'rien',parts:pool,other};
+}
+const REQS=[];
+function addReq(o){const r=Object.assign({d:0},o,parseReq(o.txt));r.res=matchReq(r);REQS.unshift(r);return r}
+if(!LIVE){[
+ {from:'Thomas L.',sub:'Pièces 250 SXF 2010',txt:'Bonjour, je cherche des pièces pour ma 250 SXF de 2010, surtout de la partie cycle. Vous avez quoi ?',d:0},
+ {from:'Kevin D.',sub:'Carter embrayage YZ450F',txt:"Salut, vous auriez un carter d'embrayage pour une YZ450F ?",d:0},
+ {from:'Garage MX Rouen',sub:'Demande culasse',txt:'Bonjour, avez-vous une culasse complète pour CRF450R 2020 ? Merci de nous faire une offre.',d:1},
+ {from:'Lucas B.',sub:'Amortisseur CRF250R 2017',txt:'Bonjour, je cherche un amortisseur arrière pour CRF250R 2017.',d:1},
+ {from:'Anthony R.',sub:'RM-Z 450 2008',txt:'Salut, des plastiques pour RM-Z450 2008 ?',d:3},
+].reverse().forEach(addReq)}
+let mTab='all';
+function vehLabel(r){return [r.brand,r.token?r.token.toUpperCase():'',r.year].filter(Boolean).join(' ')||'Moto non reconnue'}
+function partRow(p){return `<div class="cx" style="padding:10px 12px;cursor:pointer" onclick="openPart(${p.id})">${th(p)}<div><b>${p.name}</b><div style="font-size:13px;color:var(--mute)">${p.year||''} · ${p.etat} · <span class="mono">${p.sku}</span> · ${p.loc}</div></div><div class="st"><b>${eur(p.price)}</b></div></div>`}
+function renderMsgs(){
+  const tabs=[['all','Toutes'],['exact','✅ Pièce trouvée'],['liste','📋 On a des pièces'],['rien','❌ Rien en stock']];
+  const f=k=>r=>k==='all'||r.res.type===k;
+  $('#mtabs').innerHTML=tabs.map(([k,l])=>`<button class="tab ${mTab===k?'on':''}" onclick="mTab='${k}';renderMsgs()">${l}<i>${REQS.filter(f(k)).length}</i></button>`).join('');
+  const box=`<div class="card"><h2>Vérifier une demande</h2><p style="color:var(--mute);font-size:14px;margin-bottom:10px">Colle le texte du mail du client : le Hub repère la moto, l'année et la pièce, puis cherche dans le stock.${LIVE?' La lecture automatique des mails arrive à la prochaine étape.':''}</p>
+    <textarea id="reqTxt" style="width:100%;height:80px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px;outline:none;resize:vertical" placeholder="Ex : Bonjour, vous auriez un bras oscillant pour 250 SXF 2016 ?"></textarea>
+    <div class="actions" style="margin-top:10px"><button class="btn primary sm" onclick="checkReq()">🔎 Chercher dans le stock</button></div></div>`;
+  $('#reqs').innerHTML=box+(REQS.filter(f(mTab)).map(r=>{
+    const R=r.res,veh=vehLabel(r),idx=REQS.indexOf(r);let head,col;
+    if(R.type==='exact'){head=`✅ <b>${R.parts.length} pièce${R.parts.length>1?'s':''} correspond${R.parts.length>1?'ent':''}</b> à la demande`;col='var(--green)'}
+    else if(R.type==='liste'){head=(R.missed?`⚠️ Pas de « ${r.terms.join(', ')} », mais `:'📋 ')+`<b>${R.parts.length} pièce${R.parts.length>1?'s':''} en stock</b> pour ${veh}`;col='var(--amber)'}
+    else if(R.type==='flou'){head=`🤔 Je n'ai pas reconnu la moto dans ce message. Précise le modèle (ex : 250 SX-F, YZ450F, CRF250R).`;col='var(--violet)'}
+    else{head=`❌ <b>Aucune pièce trouvée</b> pour ${veh}. Pas la peine de chercher.`;col='var(--pink)'}
+    const list=R.parts.slice(0,10).map(partRow).join('');
+    const oth=R.other&&R.other.length&&R.type!=='exact'?`<details style="margin-top:10px;color:var(--mute)"><summary style="cursor:pointer">ℹ️ ${R.other.length} pièce${R.other.length>1?'s':''} du même modèle, d'autres années (compatibilité à vérifier)</summary><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">${R.other.slice(0,10).map(partRow).join('')}</div></details>`:'';
+    return `<div class="card" style="border-left:4px solid ${col}">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="badge b-blue">📩 ${r.src||'Mail'}</span><b>${r.from}</b><span style="color:var(--mute);font-size:13px">${r.sub||''}</span><span style="margin-left:auto;color:var(--mute);font-size:12px">${r.d===0?"aujourd'hui":r.d===1?'hier':'il y a '+r.d+' j'}</span></div>
+      <p style="color:var(--mute);margin:10px 0;font-style:italic">« ${r.txt.replace(/</g,'&lt;')} »</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><span class="badge b-mute">🏍️ ${veh}</span>${r.terms.map(t=>`<span class="badge b-mute">🔎 ${t}</span>`).join('')}</div>
+      <div style="font-size:15px;margin-bottom:${list?'10px':'0'}">${head}</div>
+      ${list?`<div style="display:flex;flex-direction:column;gap:8px">${list}</div>${R.parts.length>10?`<div style="color:var(--mute);font-size:13px;margin-top:6px">+ ${R.parts.length-10} autres</div>`:''}`:''}${oth}
+      <div class="actions" style="margin-top:14px">${R.parts.length?`<button class="btn sm primary" onclick="copyList(${idx})">📋 Copier la liste pour répondre</button>`:''}<button class="btn sm" onclick="REQS.splice(${idx},1);renderMsgs();renderNav('messages')">✔️ Traité</button></div>
+    </div>`}).join('')||'');
+}
+function checkReq(){const t=$('#reqTxt').value.trim();if(!t)return;addReq({from:'Demande collée',src:'Collée',sub:'',txt:t});mTab='all';renderMsgs();renderNav('messages')}
+function copyList(i){const r=REQS[i];const t=`Bonjour,\n\nVoici ce que nous avons en stock pour votre ${vehLabel(r)} :\n`+r.res.parts.map(p=>`- ${p.name} (état ${p.etat}) : ${eur(p.price)}${p.link?' · '+p.link:''}`).join('\n')+`\n\nSportivement,\nLSMX`;
+  try{navigator.clipboard.writeText(t).then(()=>toast('📋 Liste copiée : colle-la dans ta réponse'),()=>toast('Copie refusée par le navigateur'))}catch(e){toast('Copie refusée par le navigateur')}}
+
+/* =================== FOURNISSEURS =================== */
+function renderSup(){
+  if(LIVE&&!$('#supDemo'))$('#suppliers').insertAdjacentHTML('beforebegin','<div id="supDemo" class="alert" style="margin-bottom:16px">🧪 <span><b>Exemple :</b> ce module n\'a pas encore de vraies données. On le construira ensemble (étape 5).</span></div>');
+  $('#suppliers').innerHTML=SUPPLIERS.map(s=>{const n=PARTS.filter(p=>p.supplier===s.n);const sold=n.filter(p=>p.st==='vendu'||p.st==='expedier');
+    return `<div class="card" style="cursor:pointer" onclick="toast('Fiche fournisseur : ${s.n.replace(/'/g,"\\'")}')"><div style="display:flex;gap:12px;align-items:center"><div class="thumb">${s.e}</div><div><b>${s.n}</b><div style="font-size:13px;color:var(--mute)">${s.t}</div></div></div>
+    <div style="display:flex;gap:16px;margin-top:14px;font-size:13px;color:var(--mute)"><span><b style="color:var(--txt)">${s.lots}</b> lots</span><span><b style="color:var(--txt)">${n.length}</b> pièces</span><span><b style="color:var(--green)">${eur(sold.reduce((a,p)=>a+p.price-p.cost,0))}</b> marge</span></div></div>`}).join('');
+  $('#sbody').innerHTML=LOTS.map(l=>`<tr class="row" onclick="toast('Détail du lot : bientôt')"><td><div class="cell-main"><div class="thumb">📦</div><div><b>${l.n}</b><small>${l.sup}</small></div></div></td><td><span class="badge ${l.c}">${l.st}</span></td><td>${eur(l.cost)}</td><td>${l.nb}</td><td><b>${eur(l.val)}</b> <small style="color:var(--green)">×${(l.val/l.cost).toFixed(1)}</small></td><td>${l.d<0?'prévu':fmtD(day(l.d))}</td></tr>`).join('');
+}
+
+/* =================== STATS =================== */
+function renderStats(){
+  const sold=ORDERS.flatMap(o=>o.items);
+  const ca=sold.reduce((a,p)=>a+p.price,0),mg=sold.reduce((a,p)=>a+p.price-p.cost,0);
+  $('#skpis').innerHTML=[['CA (démo)',eur(ca)],['Marge brute',eur(mg)],['Panier moyen',eur(ORDERS.length?ca/ORDERS.length:0)],['Part eBay',(ORDERS.length?Math.round(ORDERS.filter(o=>o.src==='ebay').length/ORDERS.length*100):0)+' %']].map(([l,v])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  const agg=(key)=>{const m={};sold.forEach(p=>m[p[key]]=(m[p[key]]||0)+p.price);return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+  const bar=(rows)=>{const mx=rows[0][1];return rows.slice(0,7).map(([k,v])=>`<div style="margin-bottom:10px"><div style="display:flex;font-size:14px"><span>${k}</span><b style="margin-left:auto">${eur(v)}</b></div><div style="height:8px;background:var(--panel2);border-radius:5px;margin-top:4px"><div style="height:100%;width:${v/mx*100}%;background:var(--grad);border-radius:5px"></div></div></div>`).join('')};
+  $('#byBrand').innerHTML=bar(agg('brand'));$('#byCat').innerHTML=bar(agg('cat'));
+}
+
+/* =================== RECHERCHE GLOBALE =================== */
+$('#q').addEventListener('input',e=>{
+  const v=e.target.value.trim().toLowerCase();const box=$('#results');
+  if(v.length<2){box.classList.remove('show');return}
+  const ps=PARTS.filter(p=>(p.sku+' '+p.name+' '+p.brand+' '+p.model+' '+p.year+' '+p.ref+' '+p.cat+' '+(p.sub||'')+' '+p.loc).toLowerCase().includes(v)).slice(0,8);
+  const os=ORDERS.filter(o=>(o.id+' '+o.client+' '+o.city).toLowerCase().includes(v)).slice(0,4);
+  box.innerHTML=ps.map(p=>`<div class="r" onclick="openPart(${p.id});hideRes()">${th(p)}<div><b>${p.name}</b><div style="font-size:13px;color:var(--mute)">${p.brand} ${p.model} · ${p.sku} · ${eur(p.price)}</div></div></div>`).join('')
+   +os.map(o=>`<div class="r" onclick="openOrder('${o.id}');hideRes()"><div class="thumb">📦</div><div><b>${o.id}</b><div style="font-size:13px;color:var(--mute)">${o.client} · ${eur(o.tot)}</div></div></div>`).join('')
+   ||'<div class="empty">Rien trouvé</div>';
+  box.classList.add('show');
+});
+function hideRes(){$('#results').classList.remove('show');$('#q').value=''}
+document.addEventListener('click',e=>{if(!e.target.closest('.search'))$('#results').classList.remove('show')});
+
+/* =================== COPILOT =================== */
+const CHIPS=['Combien de pièces KTM en vente ?','Qu\'est-ce que je dois expédier ?','Ma meilleure vente du mois','Pièces en vente depuis +60 jours'];
+$('#copChips').innerHTML=CHIPS.map(c=>`<button class="chip" onclick="askCop(null,'${c.replace(/'/g,"\\'")}')">${c}</button>`).join('');
+function toggleCop(){$('#cop').classList.toggle('show')}
+function askCop(e,txt){
+  if(e)e.preventDefault();const q=(txt||$('#copQ').value).trim();if(!q)return;$('#copQ').value='';
+  const b=$('#copB');b.insertAdjacentHTML('beforeend',`<div class="q">${q.replace(/</g,'&lt;')}</div>`);
+  const l=q.toLowerCase();let a;
+  if(l.includes('ktm')){const k=PARTS.filter(p=>p.brand==='KTM'&&p.st==='vente');a=`Tu as <b>${k.length} pièces KTM en vente</b> pour ${eur(k.reduce((s,p)=>s+p.price,0))}, dont ${k.filter(p=>p.etat==='Neuf').length} neuves avec référence.`}
+  else if(l.includes('expédi')||l.includes('expedi')){const o=ORDERS.filter(o=>o.st==='payee'||o.st==='prete');a=`<b>${o.length} colis</b> à préparer : `+o.slice(0,4).map(x=>x.id+' ('+x.client+')').join(', ')+(o.length>4?'…':'')}
+  else if(l.includes('meilleure')){const s=ORDERS.flatMap(o=>o.items).sort((a,b)=>b.price-a.price)[0];a=`Ta plus grosse vente : <b>${s.name} ${s.brand} ${s.model}</b> à ${eur(s.price)}, marge ${eur(s.price-s.cost)}.`}
+  else if(l.includes('60')){const s=PARTS.filter(p=>p.st==='vente'&&(new Date()-p.inDate)/864e5>60);a=`<b>${s.length} pièces</b> sont en vente depuis plus de 60 jours. Je peux te proposer une baisse de prix ou les mettre en avant pour le Black Friday.`}
+  else a='En mode démo je ne connais que les données d\'exemple. Une fois branché, je répondrai sur ton vrai stock, tes commandes et tes mails.';
+  setTimeout(()=>{b.insertAdjacentHTML('beforeend',`<div class="a">${a}</div>`);b.scrollTop=b.scrollHeight},350);
+}
+
+/* =================== CONNEXIONS =================== */
+function renderConn(){
+  $('#connFull').innerHTML=CONN.map(cxHTML).join('')+`<div class="card" style="margin-top:8px"><h2>Comment ça va marcher</h2><p style="color:var(--mute);line-height:1.6">Le Hub ne remplace pas tes outils : il se branche dessus. WooCommerce reste la source de vérité pour les produits, le Worker Cloudflare fait le lien avec eBay, et le Hub lit et écrit au même endroit. Les clés d'accès restent côté serveur, jamais dans l'appli.</p></div>`;
+}
+
+/* =================== UTILITAIRES =================== */
+function openDrawer(){$('#drawer').classList.add('show');$('#veil').classList.add('show');$('#drawer').scrollTop=0}
+function closeDrawer(){$('#drawer').classList.remove('show');$('#veil').classList.remove('show')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+let tt;function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2400)}
+
+function renderAll(){renderHome();renderParts();renderOrders();renderMsgs();renderSup();renderStats();renderConn();go(location.hash.slice(1)||'accueil')}
+if(LIVE){
+  document.body.insertAdjacentHTML('beforeend','<div class="loader" id="loader"><div class="logo">LSMX</div><div id="loadTxt" style="color:var(--mute)">Chargement du stock…</div></div>');
+  loadLive().then(()=>{$('#loader').remove();$('#modeTag').innerHTML='<span class="dot" style="background:var(--green)"></span>Connecté à lsmx-pieces.com';renderAll()})
+   .catch(e=>{console.error(e);if(!$('#loader'))document.body.insertAdjacentHTML('beforeend','<div class="loader" id="loader"><div class="logo">LSMX</div><div id="loadTxt"></div></div>');$('#loadTxt').innerHTML='⚠️ Impossible de charger les données : '+e.message+'<br><br><button class="btn" onclick="location.reload()">Réessayer</button>'});
+}else renderAll();
+</script>
+</body>
+</html>
