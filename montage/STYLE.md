@@ -52,6 +52,7 @@ ne sont pas conservées. **On met ce fichier à jour après chaque nouveau monta
 | Date | Vidéo | Options | Retour de l'équipe | Stats (à remplir) |
 |---|---|---|---|---|
 | 2026-11 | Stock concessionnaire KTM (35 s) | `--voix --pause 3.37 --hook "On rachète un stock KTM" --sub "2000 références neuves"` + beat LSMX | « Vraiment pas mal » ; sous-titres OK ; barre rouge refusée | vues : … / likes : … |
+| 2026-11 | Teaser Black Friday 100 % code (18 s) + version Jour J | `teaser/` (config.js) | à venir | vues : … / likes : … |
 
 ## Idées à tester
 
