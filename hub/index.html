@@ -56,6 +56,15 @@ input,textarea,select{font:inherit;color:inherit}
 .btn{text-decoration:none}
 .loader{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 .loader .logo{font-size:70px}
+.gate{position:fixed;inset:0;z-index:120;background:var(--bg);background-image:radial-gradient(800px 400px at 80% -10%,rgba(255,122,26,.2),transparent 60%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px}
+.who{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.whoBtn{width:150px;padding:22px 10px;border-radius:18px;background:var(--panel);border:1px solid var(--line);font-weight:700;font-size:17px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.whoBtn:hover{border-color:var(--orange)}
+.whoBtn span{width:64px;height:64px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-family:'Bebas Neue';font-size:34px;color:#fff}
+.dots{display:flex;gap:14px;justify-content:center}.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--mute)}.dots i.on{background:var(--orange);border-color:var(--orange)}
+.pad{display:grid;grid-template-columns:repeat(3,72px);gap:12px;justify-content:center}
+.pad button{height:62px;border-radius:16px;background:var(--panel);border:1px solid var(--line);font-size:24px;font-weight:600}
+.pad button:active{background:var(--panel2)}
 .btn.sm{padding:6px 10px;font-size:13px}
 .bell{position:relative}
 .bell b{position:absolute;top:-4px;right:-4px;background:var(--pink);font-size:10px;border-radius:10px;padding:1px 5px}
@@ -234,7 +243,7 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:2px;color:var(--mute);
     <nav class="nav" id="nav"></nav>
     <div class="side-foot">
       <div id="modeTag"><span class="dot" style="background:var(--amber)"></span>Données de démo</div>
-      <div style="margin-top:6px">Esteban · Maxence</div>
+      <div style="margin-top:6px" id="whoTag">Esteban · Maxence</div>
     </div>
   </aside>
 
@@ -247,7 +256,7 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:2px;color:var(--mute);
       </div>
       <div class="top-actions">
         <button class="btn hide-m" onclick="toast('📸 Ajout de pièce : bientôt branché sur WooCommerce')">＋ <span>Nouvelle pièce</span></button>
-        <button class="btn bell" onclick="go('messages')">🔔<b id="bellN">0</b></button>
+        <button class="btn" id="whoBtnTop" style="display:none" onclick="switchProfile()" title="Changer de profil">👤</button><button class="btn bell" onclick="go('messages')">🔔<b id="bellN">0</b></button>
       </div>
     </header>
 
@@ -480,6 +489,38 @@ async function loadLive(){
   const w=CONN.find(c=>c.n==='WooCommerce');w.ok=1;w.st='Connecté · '+PARTS.length+' produits';
 }
 
+/* =================== PROFIL + CODE =================== */
+let PROFILE=null;
+function hubApi(path,body){return fetch(LIVE.root+'lsmx-hub/v1/'+path,{method:body?'POST':'GET',headers:{'X-WP-Nonce':LIVE.nonce,'Content-Type':'application/json'},credentials:'same-origin',body:body?JSON.stringify(body):undefined}).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.message||('Erreur '+r.status));return j})}
+function gate(){
+  return new Promise(async resolve=>{
+    try{const s=sessionStorage.getItem('lsmx_profile');if(s){PROFILE=s;return resolve()}}catch(e){}
+    document.body.insertAdjacentHTML('beforeend',`<div class="gate" id="gate"><div class="logo" style="font-size:64px">LSMX</div><div id="gateBody" style="color:var(--mute)">…</div></div>`);
+    let profs=[];try{profs=await hubApi('profiles')}catch(e){$('#gateBody').textContent='⚠️ '+e.message;return}
+    const pick=()=>{$('#gateBody').innerHTML=`<div style="text-align:center;margin-bottom:18px;color:var(--mute)">Qui es-tu ?</div><div class="who">${profs.map(p=>`<button class="whoBtn" data-id="${p.id}"><span>${p.name[0]}</span>${p.name}</button>`).join('')}</div>`;
+      document.querySelectorAll('.whoBtn').forEach(b=>b.onclick=()=>pin(profs.find(p=>p.id===b.dataset.id)))};
+    const pin=(p,first)=>{
+      let code='';const mode=!p.hasPin?(first?'confirm':'create'):'login';
+      const title=mode==='login'?`Code de ${p.name}`:mode==='create'?`${p.name}, choisis ton code à 4 chiffres`:'Retape ton code pour confirmer';
+      $('#gateBody').innerHTML=`<div style="text-align:center"><div style="font-weight:700;color:var(--txt);margin-bottom:14px">${title}</div><div class="dots" id="dots">${'<i></i>'.repeat(4)}</div><div id="gErr" style="color:var(--pink);min-height:22px;margin:8px 0"></div>
+        <div class="pad">${[1,2,3,4,5,6,7,8,9,'←',0,'⌫'].map(k=>`<button data-k="${k}">${k}</button>`).join('')}</div></div>`;
+      const draw=()=>document.querySelectorAll('#dots i').forEach((d,i)=>d.classList.toggle('on',i<code.length));
+      const press=async k=>{
+        if(k==='←')return pick();if(k==='⌫'){code=code.slice(0,-1);return draw()}
+        if(code.length>=4)return;code+=k;draw();if(code.length<4)return;
+        if(mode==='create'){p._first=code;return pin(p,true)}
+        if(mode==='confirm'&&code!==p._first){$('#gErr').textContent='Les deux codes ne correspondent pas';code='';setTimeout(()=>pin(p,false),900);return}
+        try{await hubApi('login',{id:p.id,pin:code});PROFILE=p.name;try{sessionStorage.setItem('lsmx_profile',p.name)}catch(e){}$('#gate').remove();resolve()}
+        catch(e){$('#gErr').textContent=e.message;code='';draw()}
+      };
+      document.querySelectorAll('.pad button').forEach(b=>b.onclick=()=>press(b.dataset.k));
+      document.onkeydown=e=>{if(!$('#gate'))return(document.onkeydown=null);if(/^\d$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('⌫')};
+    };
+    pick();
+  });
+}
+function switchProfile(){try{sessionStorage.removeItem('lsmx_profile')}catch(e){}location.reload()}
+
 /* =================== NAVIGATION =================== */
 const PAGES=[['accueil','🏠','Accueil'],['pieces','🔧','Pièces'],['commandes','📦','Commandes'],['messages','📩','Demandes'],['fournisseurs','🚚','Fournisseurs'],['stats','📊','Stats'],['connexions','🔌','Connexions']];
 const $=s=>document.querySelector(s);
@@ -501,7 +542,7 @@ window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
 /* =================== ACCUEIL =================== */
 function renderHome(){
   const h=new Date().getHours();
-  $('#hello').textContent=(h<18?'Salut':'Bonsoir')+' '+(LIVE&&LIVE.user?LIVE.user.split(' ')[0]:'Esteban')+' 🏁';
+  $('#hello').textContent=(h<18?'Salut':'Bonsoir')+' '+(PROFILE||'Esteban')+' 🏁';
   $('#today').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' · voici où en est LSMX';
   const age=o=>(new Date()-o.date)/864e5;const ok=o=>o.st!=='litige';
   const month=ORDERS.filter(o=>ok(o)&&age(o)<30).reduce((a,o)=>a+o.tot,0);const prev=ORDERS.filter(o=>ok(o)&&age(o)>=30&&age(o)<60).reduce((a,o)=>a+o.tot,0);
@@ -760,7 +801,7 @@ let tt;function toast(t){const el=$('#toast');el.textContent=t;el.classList.add(
 function renderAll(){renderHome();renderParts();renderOrders();renderMsgs();renderSup();renderStats();renderConn();go(location.hash.slice(1)||'accueil')}
 if(LIVE){
   document.body.insertAdjacentHTML('beforeend','<div class="loader" id="loader"><div class="logo">LSMX</div><div id="loadTxt" style="color:var(--mute)">Chargement du stock…</div></div>');
-  loadLive().then(()=>{$('#loader').remove();$('#modeTag').innerHTML='<span class="dot" style="background:var(--green)"></span>Connecté à lsmx-pieces.com';renderAll()})
+  Promise.all([loadLive(),gate()]).then(()=>{$('#loader').remove();$('#whoBtnTop').style.display='';$('#whoBtnTop').title='Changer de profil ('+PROFILE+')';$('#whoTag').innerHTML=`👤 <b style="color:var(--txt)">${PROFILE}</b> · <a href="#" onclick="switchProfile();return false" style="color:var(--orange)">changer</a>`;$('#modeTag').innerHTML='<span class="dot" style="background:var(--green)"></span>Connecté à lsmx-pieces.com';renderAll()})
    .catch(e=>{console.error(e);if(!$('#loader'))document.body.insertAdjacentHTML('beforeend','<div class="loader" id="loader"><div class="logo">LSMX</div><div id="loadTxt"></div></div>');$('#loadTxt').innerHTML='⚠️ Impossible de charger les données : '+e.message+'<br><br><button class="btn" onclick="location.reload()">Réessayer</button>'});
 }else renderAll();
 </script>
