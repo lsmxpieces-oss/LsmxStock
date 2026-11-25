@@ -700,7 +700,7 @@ function matchReq(r){
   const model=PARTS.filter(p=>dispo.includes(p.st)&&partFits(p,r));
   const pool=model.filter(p=>yearOk(p,r));
   const other=model.filter(p=>!yearOk(p,r));
-  if(!(r.keys&&r.keys.length)&&!r.brand)return{type:'flou',parts:[],other:[]};
+  if(!(r.keys&&r.keys.length))return{type:'flou',parts:[],other:[]};
   if(r.terms.length){
     const ex=pool.filter(p=>r.terms.some(t=>cmp(p.name+' '+p.cat+' '+(p.sub||'')).includes(cmp(t))));
     if(ex.length)return{type:'exact',parts:ex,other:pool.filter(p=>!ex.includes(p))};
