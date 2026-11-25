@@ -302,7 +302,7 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:2px;color:var(--mute);
 
     <!-- MESSAGES -->
     <section class="page" id="p-messages">
-      <div class="head"><div><h1>Demandes clients</h1><p class="sub">Tes mails restent dans ta boîte mail. Le Hub lit les demandes de pièces, cherche dans le stock et te donne la réponse.</p></div></div>
+      <div class="head"><div><h1>Demandes clients</h1><p class="sub">Les demandes envoyées depuis le formulaire du site arrivent ici, déjà vérifiées dans le stock.</p></div></div>
       <div class="tabs" id="mtabs"></div>
       <div id="reqs" style="display:flex;flex-direction:column;gap:14px"></div>
     </section>
@@ -486,6 +486,9 @@ async function loadLive(){
   PARTS.length=0;all.forEach(p=>PARTS.push(mapProduct(p)));
   const os=await Promise.all([1,2].map(p=>wc('orders?per_page=100&page='+p).catch(()=>({j:[]}))));
   ORDERS.length=0;os.forEach(x=>x.j.forEach(o=>ORDERS.push(mapOrder(o))));
+  try{const ds=await hubApi('demandes');REQS.length=0;ds.forEach(d=>{const v=d.values||{};const first=v.field_0e751ae||'';
+    addReq({sid:d.id,from:(first+' '+(v.field_c4ca207||'')).trim()||v.email||'Client',first,email:v.email||'',phone:v.phone||'',objet:v.name||'',sub:(v.name||'').replace(/\s*\(bientôt disponible\)/,''),src:'Site',txt:v.message||'',date:new Date(d.created_at.replace(' ','T')),done:d.done||null},true)});
+    const f=CONN.find(c=>c.n==='Gmail');f.n='Formulaire du site';f.d='Demandes de pièces (page Contact)';f.ok=1;f.st='Connecté · '+ds.length+' messages';}catch(e){console.warn('demandes',e)}
   const w=CONN.find(c=>c.n==='WooCommerce');w.ok=1;w.st='Connecté · '+PARTS.length+' produits';
 }
 
@@ -524,7 +527,7 @@ function switchProfile(){try{sessionStorage.removeItem('lsmx_profile')}catch(e){
 /* =================== NAVIGATION =================== */
 const PAGES=[['accueil','🏠','Accueil'],['pieces','🔧','Pièces'],['commandes','📦','Commandes'],['messages','📩','Demandes'],['fournisseurs','🚚','Fournisseurs'],['stats','📊','Stats'],['connexions','🔌','Connexions']];
 const $=s=>document.querySelector(s);
-function counts(){return{commandes:ORDERS.filter(o=>o.st==='payee'||o.st==='prete').length,messages:REQS.length,pieces:PARTS.filter(p=>p.st==='publier').length}}
+function counts(){return{commandes:ORDERS.filter(o=>o.st==='payee'||o.st==='prete').length,messages:REQS.filter(r=>r.piece&&!r.done).length,pieces:PARTS.filter(p=>p.st==='publier').length}}
 function renderNav(cur){
   const c=counts();
   $('#nav').innerHTML=PAGES.map(([k,ic,l])=>`<button class="${k===cur?'on':''}" onclick="go('${k}')"><span class="ic">${ic}</span>${l}${c[k]?`<span class="cnt">${c[k]}</span>`:''}</button>`).join('');
@@ -551,7 +554,7 @@ function renderHome(){
   const k=[
     ['CA 30 jours',eur(month),delta==null?'site WooCommerce':(delta>=0?'+':'')+delta+' % vs mois d\'avant',delta>=0?'up':'','stats'],
     ['À expédier',ORDERS.filter(o=>o.st==='payee'||o.st==='prete').length,'colis à préparer','', 'commandes'],
-    ['Demandes',REQS.length,REQS.filter(r=>r.res.type!=='rien').length+' avec pièces en stock','','messages'],
+    ['Demandes',REQS.filter(r=>r.piece&&!r.done).length,REQS.filter(r=>r.piece&&!r.done&&r.res.parts.length).length+' avec pièces en stock','','messages'],
     ['En vente',enVente.length,'valeur '+eur(enVente.reduce((a,p)=>a+p.price,0)),'','pieces'],
     ['À publier',PARTS.filter(p=>p.st==='publier').length,'fiches à créer','','pieces'],
   ];
@@ -564,7 +567,7 @@ function renderHome(){
   // alerts
   const al=[
     ['red','📦',`<b>${ORDERS.filter(o=>o.st==='payee').length} commandes payées</b> attendent d'être préparées`,'commandes'],
-    ['','💬',`<b>${REQS.length} demandes de pièces</b> reçues par mail, déjà vérifiées dans le stock`,'messages'],
+    ['','💬',`<b>${REQS.filter(r=>r.piece&&!r.done).length} demandes de pièces</b> à traiter, déjà vérifiées dans le stock`,'messages'],
     ...(LIVE?[['','📝',`<b>${PARTS.filter(p=>p.st==='publier').length} fiches</b> en brouillon, pas encore publiées`,'pieces']]:[['','🟧',`<b>Lot destockage KTM n°2</b> arrivé : 84 références à rentrer`,'fournisseurs'],['','📸',`<b>${PARTS.filter(p=>p.st==='photo').length} pièces</b> à photographier`,'pieces']]),
   ];
   $('#alerts').innerHTML=al.map(([c,i,t,to])=>`<div class="alert ${c}" onclick="go('${to}')"><span style="font-size:20px">${i}</span><span>${t}</span><span style="margin-left:auto;color:var(--mute)">→</span></div>`).join('');
@@ -658,8 +661,15 @@ const PART_WORDS=['bras oscillant','te de fourche','boite de vitesses','boite a 
 const BRAND_HINT=[['KTM',/\bktm\b|sx-?f|exc|\bsx\b|\bxc\b/],['YAMAHA',/yamaha|\byz|\bwr\d/],['HONDA',/honda|\bcrf|\bcr\d/],['KAWASAKI',/kawa|\bkx/],['SUZUKI',/suzuki|\brm-?z|\brm\d/],['HUSQVARNA',/husq|\bfc\s?\d|\btc\s?\d|\bte\s?\d|\bfe\s?\d/],['GASGAS',/gas\s?gas|\bmc\s?\d|\bec\s?\d|\bex\s?\d/]];
 function parseReq(txt){
   const s=' '+norm(txt).replace(/[’']/g,' ')+' ';
-  const y=s.match(/\b(19[89]\d|20[0-3]\d)\b/);let year=y?+y[1]:null;
-  if(!year){const y2=s.match(/\b(?:de|en|annee|modele)\s+(0\d|1\d|2\d)\b/);if(y2)year=2000+ +y2[1]}
+  let year=null,yearTo=null;
+  const yr=s.match(/\b(19[89]\d|20[0-3]\d)\s*(?:-|a|au|\/)\s*(19[89]\d|20[0-3]\d)\b/);
+  const ys=s.match(/\b([0-3]\d)\s*[\/-]\s*([0-3]\d)\b/);
+  const y=s.match(/\b(19[89]\d|20[0-3]\d)\b/);
+  if(yr){year=+yr[1];yearTo=+yr[2]}
+  else if(y){year=+y[1]}
+  else if(ys&&+ys[1]<=+ys[2]){year=2000+ +ys[1];yearTo=2000+ +ys[2]}
+  else{const y2=s.match(/\b(?:de|en|annee|modele)\s+([0-3]\d)\b/);if(y2)year=2000+ +y2[1]}
+  if(!yearTo)yearTo=year;
   let m=s.match(/\b(\d{2,3})\s*-?\s*(sx-?f|exc-?f|xc-?f|xcf-?w|sx|exc|xc|tpi|smr|mxc)\b/);
   let token=null;
   if(m)token=m[1]+m[2].replace('-','');
@@ -669,11 +679,11 @@ function parseReq(txt){
   // garder les termes les plus longs (bras oscillant > bras)
   const t2=terms.filter(t=>!terms.some(o=>o!==t&&o.includes(t)));
   const keys=modelKeys(txt);if(!token&&keys.length)token=keys[0].split(':').reverse().join('');
-  return{token,year,brand,terms:t2,keys};
+  return{token,year,yearTo,brand,terms:t2,keys};
 }
 const FAM='sxf|sx|excf|exc|xcf|xcw|xc|tpi|smr|mxc|yzf|yz|wrf|wr|crfr|crf|cr|kxf|kx|klx|rmz|rmx|rm|fc|tc|te|fe|mc|ec|ex|tx|ttr|drz|ltr|pw';
 const RE1=new RegExp('\\b(\\d{2,3})\\s*-?\\s*('+FAM+')\\b','g'),RE2=new RegExp('\\b('+FAM.replace('crfr|','')+')\\s*-?\\s*(\\d{2,3})\\s*-?\\s*(f|r|x|rx|fx)?\\b','g');
-function modelKeys(txt){const s=' '+norm(txt).replace(/sx-f/g,'sxf').replace(/exc-f/g,'excf').replace(/xc-f/g,'xcf').replace(/rm-z/g,'rmz')+' ';const k=new Set();let m;
+function modelKeys(txt){const s=' '+norm(txt).replace(/[,;.()]/g,' ').replace(/sx-f/g,'sxf').replace(/exc-f/g,'excf').replace(/xc-f/g,'xcf').replace(/rm-z/g,'rmz')+' ';const k=new Set();let m;
   RE1.lastIndex=0;while((m=RE1.exec(s)))k.add(m[1]+':'+m[2]);
   RE2.lastIndex=0;while((m=RE2.exec(s)))k.add(m[2]+':'+m[1]+(m[3]&&!m[1].endsWith(m[3])?m[3]:''));
   return[...k]}
@@ -684,12 +694,12 @@ function partFits(p,r){
   if(r.brand&&p.brand&&p.brand!=='—'&&!p.brand.startsWith(r.brand.slice(0,4)))return false;
   return true;
 }
-function yearOk(p,y){if(!y)return true;const a=p.yFrom||p.year,b=p.yTo||p.year;if(!a)return true;return y>=a&&y<=b}
+function yearOk(p,r){const y1=r.year,y2=r.yearTo||r.year;if(!y1)return true;const a=p.yFrom||p.year,b=p.yTo||p.year;if(!a)return true;return y1<=b&&y2>=a}
 function matchReq(r){
   const dispo=['vente','publier','photo','nettoyer','reserve'];
   const model=PARTS.filter(p=>dispo.includes(p.st)&&partFits(p,r));
-  const pool=model.filter(p=>yearOk(p,r.year));
-  const other=model.filter(p=>!yearOk(p,r.year));
+  const pool=model.filter(p=>yearOk(p,r));
+  const other=model.filter(p=>!yearOk(p,r));
   if(!(r.keys&&r.keys.length)&&!r.brand)return{type:'flou',parts:[],other:[]};
   if(r.terms.length){
     const ex=pool.filter(p=>r.terms.some(t=>cmp(p.name+' '+p.cat+' '+(p.sub||'')).includes(cmp(t))));
@@ -699,7 +709,10 @@ function matchReq(r){
   return{type:pool.length?'liste':'rien',parts:pool,other};
 }
 const REQS=[];
-function addReq(o){const r=Object.assign({d:0},o,parseReq(o.txt));r.res=matchReq(r);REQS.unshift(r);return r}
+function addReq(o,atEnd){const r=Object.assign({d:0},o,parseReq(o.txt));r.res=matchReq(r);
+  r.piece=/piece/.test(norm(o.objet||''))||!!(r.keys&&r.keys.length&&r.terms.length)||(!o.objet&&true);
+  if(!r.piece&&r.res.type!=='flou'&&r.terms.length)r.piece=true;
+  atEnd?REQS.push(r):REQS.unshift(r);return r}
 if(!LIVE){[
  {from:'Thomas L.',sub:'Pièces 250 SXF 2010',txt:'Bonjour, je cherche des pièces pour ma 250 SXF de 2010, surtout de la partie cycle. Vous avez quoi ?',d:0},
  {from:'Kevin D.',sub:'Carter embrayage YZ450F',txt:"Salut, vous auriez un carter d'embrayage pour une YZ450F ?",d:0},
@@ -708,34 +721,42 @@ if(!LIVE){[
  {from:'Anthony R.',sub:'RM-Z 450 2008',txt:'Salut, des plastiques pour RM-Z450 2008 ?',d:3},
 ].reverse().forEach(addReq)}
 let mTab='all';
-function vehLabel(r){return [r.brand,r.token?r.token.toUpperCase():'',r.year].filter(Boolean).join(' ')||'Moto non reconnue'}
+function vehLabel(r){return [r.brand,r.token?r.token.toUpperCase():'',r.year?(r.yearTo&&r.yearTo!==r.year?r.year+'-'+r.yearTo:r.year):''].filter(Boolean).join(' ')||'Moto non reconnue'}
 function partRow(p){return `<div class="cx" style="padding:10px 12px;cursor:pointer" onclick="openPart(${p.id})">${th(p)}<div><b>${p.name}</b><div style="font-size:13px;color:var(--mute)">${p.year||''} · ${p.etat} · <span class="mono">${p.sku}</span> · ${p.loc}</div></div><div class="st"><b>${eur(p.price)}</b></div></div>`}
 function renderMsgs(){
-  const tabs=[['all','Toutes'],['exact','✅ Pièce trouvée'],['liste','📋 On a des pièces'],['rien','❌ Rien en stock']];
-  const f=k=>r=>k==='all'||r.res.type===k;
+  const tabs=[['all','À traiter'],['exact','✅ Pièce trouvée'],['liste','📋 On a des pièces'],['rien','❌ Rien en stock'],['autres','💬 Autres messages'],['done','✔️ Traitées']];
+  const f=k=>r=>k==='done'?!!r.done:r.done?false:k==='autres'?!r.piece:!r.piece?false:(k==='all'||r.res.type===k);
   $('#mtabs').innerHTML=tabs.map(([k,l])=>`<button class="tab ${mTab===k?'on':''}" onclick="mTab='${k}';renderMsgs()">${l}<i>${REQS.filter(f(k)).length}</i></button>`).join('');
-  const box=`<div class="card"><h2>Vérifier une demande</h2><p style="color:var(--mute);font-size:14px;margin-bottom:10px">Colle le texte du mail du client : le Hub repère la moto, l'année et la pièce, puis cherche dans le stock.${LIVE?' La lecture automatique des mails arrive à la prochaine étape.':''}</p>
+  const box=`<details class="card" ${LIVE?'':'open'}><summary style="cursor:pointer"><h2 style="display:inline">Vérifier une demande à la main</h2></summary><p style="color:var(--mute);font-size:14px;margin-bottom:10px">Colle le texte du mail du client : le Hub repère la moto, l'année et la pièce, puis cherche dans le stock.${LIVE?' Les demandes du formulaire Contact du site arrivent ici toutes seules.':''}</p>
     <textarea id="reqTxt" style="width:100%;height:80px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px;outline:none;resize:vertical" placeholder="Ex : Bonjour, vous auriez un bras oscillant pour 250 SXF 2016 ?"></textarea>
-    <div class="actions" style="margin-top:10px"><button class="btn primary sm" onclick="checkReq()">🔎 Chercher dans le stock</button></div></div>`;
+    <div class="actions" style="margin-top:10px"><button class="btn primary sm" onclick="checkReq()">🔎 Chercher dans le stock</button></div></details>`;
   $('#reqs').innerHTML=box+(REQS.filter(f(mTab)).map(r=>{
     const R=r.res,veh=vehLabel(r),idx=REQS.indexOf(r);let head,col;
     if(R.type==='exact'){head=`✅ <b>${R.parts.length} pièce${R.parts.length>1?'s':''} correspond${R.parts.length>1?'ent':''}</b> à la demande`;col='var(--green)'}
     else if(R.type==='liste'){head=(R.missed?`⚠️ Pas de « ${r.terms.join(', ')} », mais `:'📋 ')+`<b>${R.parts.length} pièce${R.parts.length>1?'s':''} en stock</b> pour ${veh}`;col='var(--amber)'}
+    else if(!r.piece){head='';col='var(--line)'}
     else if(R.type==='flou'){head=`🤔 Je n'ai pas reconnu la moto dans ce message. Précise le modèle (ex : 250 SX-F, YZ450F, CRF250R).`;col='var(--violet)'}
     else{head=`❌ <b>Aucune pièce trouvée</b> pour ${veh}. Pas la peine de chercher.`;col='var(--pink)'}
     const list=R.parts.slice(0,10).map(partRow).join('');
     const oth=R.other&&R.other.length&&R.type!=='exact'?`<details style="margin-top:10px;color:var(--mute)"><summary style="cursor:pointer">ℹ️ ${R.other.length} pièce${R.other.length>1?'s':''} du même modèle, d'autres années (compatibilité à vérifier)</summary><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">${R.other.slice(0,10).map(partRow).join('')}</div></details>`:'';
     return `<div class="card" style="border-left:4px solid ${col}">
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="badge b-blue">📩 ${r.src||'Mail'}</span><b>${r.from}</b><span style="color:var(--mute);font-size:13px">${r.sub||''}</span><span style="margin-left:auto;color:var(--mute);font-size:12px">${r.d===0?"aujourd'hui":r.d===1?'hier':'il y a '+r.d+' j'}</span></div>
-      <p style="color:var(--mute);margin:10px 0;font-style:italic">« ${r.txt.replace(/</g,'&lt;')} »</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><span class="badge b-mute">🏍️ ${veh}</span>${r.terms.map(t=>`<span class="badge b-mute">🔎 ${t}</span>`).join('')}</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="badge b-blue">📩 ${r.src||'Mail'}</span><b>${r.from}</b><span style="color:var(--mute);font-size:13px">${r.sub||''}</span><span style="margin-left:auto;color:var(--mute);font-size:12px">${r.date?r.date.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' '+r.date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):r.d===0?"aujourd'hui":r.d===1?'hier':'il y a '+r.d+' j'}</span></div>
+      ${r.email||r.phone?`<div style="font-size:13px;color:var(--mute);margin-top:6px">${r.email?`✉️ <a href="mailto:${r.email}" style="color:var(--blue)">${r.email}</a>`:''}${r.phone?` · 📞 <a href="tel:${r.phone}" style="color:var(--blue)">${r.phone}</a>`:''}</div>`:''}
+      ${r.done?`<div class="badge b-green" style="margin-top:8px">✔️ Traité par ${r.done.by} le ${new Date(r.done.at).toLocaleDateString('fr-FR')}</div>`:''}
+      <p style="color:var(--mute);margin:10px 0;font-style:italic;white-space:pre-line">« ${r.txt.replace(/</g,'&lt;').trim()} »</p>
+      <div style="display:${r.piece?'flex':'none'};gap:8px;flex-wrap:wrap;margin-bottom:12px"><span class="badge b-mute">🏍️ ${veh}</span>${r.terms.map(t=>`<span class="badge b-mute">🔎 ${t}</span>`).join('')}</div>
       <div style="font-size:15px;margin-bottom:${list?'10px':'0'}">${head}</div>
       ${list?`<div style="display:flex;flex-direction:column;gap:8px">${list}</div>${R.parts.length>10?`<div style="color:var(--mute);font-size:13px;margin-top:6px">+ ${R.parts.length-10} autres</div>`:''}`:''}${oth}
-      <div class="actions" style="margin-top:14px">${R.parts.length?`<button class="btn sm primary" onclick="copyList(${idx})">📋 Copier la liste pour répondre</button>`:''}<button class="btn sm" onclick="REQS.splice(${idx},1);renderMsgs();renderNav('messages')">✔️ Traité</button></div>
+      <div class="actions" style="margin-top:14px">${R.parts.length?`<button class="btn sm primary" onclick="copyList(${idx})">📋 Copier la liste pour répondre</button>`:''}${r.email&&r.piece?`<a class="btn sm" href="${mailtoFor(r)}">✉️ Répondre par mail</a>`:''}${r.done?'':`<button class="btn sm" onclick="markDone(${idx})">✔️ Traité</button>`}</div>
     </div>`}).join('')||'');
 }
 function checkReq(){const t=$('#reqTxt').value.trim();if(!t)return;addReq({from:'Demande collée',src:'Collée',sub:'',txt:t});mTab='all';renderMsgs();renderNav('messages')}
-function copyList(i){const r=REQS[i];const t=`Bonjour,\n\nVoici ce que nous avons en stock pour votre ${vehLabel(r)} :\n`+r.res.parts.map(p=>`- ${p.name} (état ${p.etat}) : ${eur(p.price)}${p.link?' · '+p.link:''}`).join('\n')+`\n\nSportivement,\nLSMX`;
+function replyText(r){return r.res.parts.length?`Bonjour ${r.first||''},\n\nMerci pour votre demande. Voici ce que nous avons en stock pour votre ${vehLabel(r)} :\n`+r.res.parts.slice(0,15).map(p=>`- ${p.name} (état ${p.etat}) : ${eur(p.price)}${p.link?'\n  '+p.link:''}`).join('\n')+`\n\nN'hésitez pas si vous avez une question.\nSportivement,\nLSMX`:`Bonjour ${r.first||''},\n\nMerci pour votre demande. Malheureusement nous n'avons pas cette pièce en stock pour le moment.\n\nSportivement,\nLSMX`}
+function mailtoFor(r){return 'mailto:'+encodeURIComponent(r.email)+'?subject='+encodeURIComponent('Votre demande de pièce – LSMX')+'&body='+encodeURIComponent(replyText(r))}
+async function markDone(i){const r=REQS[i];const done={by:PROFILE||'Esteban',at:new Date().toISOString()};
+  if(LIVE&&r.sid){try{await hubApi('demandes/'+r.sid+'/done',{by:done.by})}catch(e){return toast('⚠️ '+e.message)}}
+  r.done=done;renderMsgs();renderNav('messages');renderHome();toast('✔️ Marqué comme traité')}
+function copyList(i){const r=REQS[i];const t=replyText(r);
   try{navigator.clipboard.writeText(t).then(()=>toast('📋 Liste copiée : colle-la dans ta réponse'),()=>toast('Copie refusée par le navigateur'))}catch(e){toast('Copie refusée par le navigateur')}}
 
 /* =================== FOURNISSEURS =================== */
